@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 from .views import HomeView
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='riptideremix'),
+    path('', HomeView.as_view(), name='home'),
     path('mixer/', include('mixer.urls')),
     path('admin/', admin.site.urls),
 ]
