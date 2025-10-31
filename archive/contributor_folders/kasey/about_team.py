@@ -44,7 +44,7 @@ def _(basePath, mo):
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
@@ -57,7 +57,7 @@ def _(basePath, mo):
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
@@ -70,7 +70,7 @@ def _(basePath, mo):
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
@@ -83,7 +83,7 @@ def _(basePath, mo):
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
@@ -96,7 +96,7 @@ def _(basePath, mo):
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
@@ -109,7 +109,7 @@ def _(basePath, mo):
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 

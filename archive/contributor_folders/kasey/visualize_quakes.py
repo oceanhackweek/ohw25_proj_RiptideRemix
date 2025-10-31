@@ -154,7 +154,7 @@ def _(mo):
 @app.cell
 def _(UTCDateTime):
 
-    big_events = { "Japan_2011": { "start_time": UTCDateTime("2011-03-11T05:46:23"), 
+    big_events = { "Japan_2011": { "start_time": UTCDateTime("2011-03-11T05:46:23"),
                                   "latitude": 38.297, "longitude": 142.372, "depth_km": 29
                                  },
                    "Alaska_2021": { "start_time": UTCDateTime("2021-07-29T06:15:49"),
@@ -340,10 +340,10 @@ def _(
 
 
     selected_event = earthquake_dropdown.selected_key
-    selected_network = network_dropdown.selected_key       #I don't know how this will be connected to networ_stations, i don't know how 
+    selected_network = network_dropdown.selected_key       #I don't know how this will be connected to networ_stations, i don't know how
     selected_station = station_dropdown.selected_key
     selected_channel = channel_dropdown.selected_key      # We can have a drop down for three channels(BH1, BH2, BHZ), for now maybe just
-    selected_location = "*"        # Thwill serve as a wildcat (*), you can use various wildcat tho in the drop down, 
+    selected_location = "*"        # Thwill serve as a wildcat (*), you can use various wildcat tho in the drop down,
                                    # eg BH?, LH?
 
     event = big_events[selected_event]
@@ -390,18 +390,18 @@ def _(
 
 @app.cell
 def _():
-    phase_types = ["P", "S", "SKS", "SKKS"]   
+    phase_types = ["P", "S", "SKS", "SKKS"]
                                                         #This part shows the TauP phases we wanna overlay on the plots
                                                         # What this does that is shows the body waves(P&S) arrival amongst others
-    arrival_colors = {'P': 'r', 
-                      'S': 'g', 
-                      'SKS': 'b', 
+    arrival_colors = {'P': 'r',
+                      'S': 'g',
+                      'SKS': 'b',
                       'SKKS': 'm'}
 
     colors = [
-                'k', 'r', 'b', 'g',                   
-                'orange','purple',         
-                'cyan','magenta' 
+                'k', 'r', 'b', 'g',
+                'orange','purple',
+                'cyan','magenta'
             ]
     return arrival_colors, colors, phase_types
 
@@ -458,7 +458,7 @@ def _(
         distance_in_degree=distance_deg,
         phase_list=phase_types
     )
-    color = random.choice(colors)  
+    color = random.choice(colors)
 
     fig = plt.figure(figsize=(15, 6))
     plt.plot(t, tr_filt.data, label=f'{fmin}–{fmax} Hz', color=color)

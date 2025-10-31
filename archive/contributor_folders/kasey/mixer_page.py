@@ -250,7 +250,7 @@ def _(basePath, category_dropdown, class_dropdown, os, sc_dropdown):
         clips_path = basePath / "Library" / "Seismic" / class_dropdown.selected_key
         clip_list = os.listdir(clips_path)
     elif category_dropdown.selected_key == 'Anthropogenic':
-        clips_path = basePath / "Library" / "Anthropogenic" 
+        clips_path = basePath / "Library" / "Anthropogenic"
         clip_list = os.listdir(clips_path)
     else:
         clips_path = basePath / "Library" / "Other"
@@ -361,7 +361,7 @@ def _(slider_amp, slider_loops, slider_pitch, slider_speed, slider_t):
 def _(mo):
     # start time
     slider_t = mo.ui.slider(0, 20.0, label='Time in Song (s)')
-    slider_t 
+    slider_t
     return (slider_t,)
 
 
@@ -935,7 +935,7 @@ def _(
         d_resampled = signal.resample(d_selected, int(len(d_selected) * ratio))        # Use Fourier method for better quality
         sr_resampled = 44100
     else:
-        d_resampled = d_selected       
+        d_resampled = d_selected
         sr_resampled = sr_selected
 
     d_looped = np.tile(d_resampled, loops)
@@ -953,8 +953,8 @@ def _(audio_selected, clips_to_add, loops, loudness, ptch, spd, start_time):
 
 @app.cell
 def _(patches, plt):
-    def plot_time_freq_boxes(boxes, 
-                             time_range=(0, 60), 
+    def plot_time_freq_boxes(boxes,
+                             time_range=(0, 60),
                              freq_range=(0, 20000)):
         """
         Plot time-frequency boxes on a 2D plot with labels and colors.
@@ -985,8 +985,8 @@ def _(patches, plt):
 
             # Draw box
             rect = patches.Rectangle(
-                (t_start, f_start), 
-                t_end - t_start, 
+                (t_start, f_start),
+                t_end - t_start,
                 f_end - f_start,
                 linewidth=1.5, edgecolor=edgecolor, facecolor=facecolor, alpha=0.8
             )
@@ -994,9 +994,9 @@ def _(patches, plt):
 
             # Add label text at the center of the box
             # ax.text(
-            #     (t_start + t_end) / 2, 
-            #     (f_start + f_end) / 2, 
-            #     label, 
+            #     (t_start + t_end) / 2,
+            #     (f_start + f_end) / 2,
+            #     label,
             #     color="white", ha="center", va="center", fontsize=9, weight="bold"
             # )
 
