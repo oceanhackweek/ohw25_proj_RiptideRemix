@@ -17,7 +17,7 @@ def _():
 
 @app.cell
 def _():
-    import matplotlib.pyplot as plt 
+    import matplotlib.pyplot as plt
     from scipy.io import wavfile
     import numpy as np
     from scipy.signal import resample_poly, spectrogram
@@ -66,7 +66,7 @@ def _():
 def _(amps, np, resample_poly, sample_rate, wavfile):
     desired_sample_rate = 88200  # Hz (standard audio sampling rate)
 
-    up = desired_sample_rate / sample_rate 
+    up = desired_sample_rate / sample_rate
     down = 1
 
     # Resample the signal

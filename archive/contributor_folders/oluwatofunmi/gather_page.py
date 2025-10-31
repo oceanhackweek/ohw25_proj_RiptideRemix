@@ -4,7 +4,7 @@ __generated_with = "0.14.17"
 app = marimo.App(
     width="columns",
     app_title="RiptideRemix_mixer",
-    layout_file="layouts/learn_more.grid.json",
+    layout_file="layouts/about_team.grid.json",
 )
 
 
@@ -38,78 +38,78 @@ def _(basePath):
 @app.cell
 def _(basePath, mo):
     mo.image(
-        src= basePath / "Images" / "LearnMore" / "eq.jpeg",
+        src= basePath / "Images" / "Folks" / "kasey.jpg",
         alt="placeholder",
         width=175,
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
 @app.cell
 def _(basePath, mo):
     mo.image(
-        src= basePath / "Images" / "LearnMore" / "bowhead.jpeg",
+        src= basePath / "Images" / "Folks" / "mattie.jpg",
         alt="placeholder",
         width=175,
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
 @app.cell
 def _(basePath, mo):
     mo.image(
-        src= basePath / "Images" / "LearnMore" / "humpback.jpeg",
+        src= basePath / "Images" / "Folks" / "dwight.jpg",
         alt="placeholder",
         width=175,
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
 @app.cell
 def _(basePath, mo):
     mo.image(
-        src= basePath / "Images" / "LearnMore" / "ib.jpg",
+        src= basePath / "Images" / "Folks" / "derya.jpg",
         alt="placeholder",
         width=200,
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
 @app.cell
 def _(basePath, mo):
     mo.image(
-        src= basePath / "Images" / "LearnMore" / "orca.jpeg",
+        src= basePath / "Images" / "Folks" / "isabelle.jpg",
         alt="placeholder",
         width=175,
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
 @app.cell
 def _(basePath, mo):
     mo.image(
-        src= basePath / "Images" / "LearnMore" / "sperm.jpeg",
+        src= basePath / "Images" / "Folks" / "oluwatofunmi.jpeg",
         alt="placeholder",
         width=175,
         height=200,
         rounded=True,
         caption=""
-    ) 
+    )
     return
 
 
@@ -117,8 +117,9 @@ def _(basePath, mo):
 def _(mo):
     mo.md(
         r"""
-    ## Earthquakes
-    Underwater earthquakes send out deep, booming rumbles that can travel thousands of miles through the ocean. Acoustic researchers “listen” to these sounds to track seismic activity, map tectonic plates, and even study how energy moves through the Earth.
+    ## Kasey Castello
+
+    Kasey is a first-year student at Scripps Institution of Oceanography studying Bioacoustics under the supervision of Kait Frasier. Her favorite marine sound is a baby crocodile contact call.
     """
     )
     return
@@ -128,8 +129,9 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Bowhead Whale
-    Bowhead whales, living in icy Arctic waters, create an incredible variety of songs—sometimes switching “tunes” from year to year. Acoustic monitoring helps researchers follow their movements beneath the ice, study their cultural song traditions, and understand how climate change impacts their habitat.
+    ## Mattie Toll
+
+    Mattie is a researcher at Ocean Science Analytics working on bioacoustics programming. Her favorite marine sound is a dwarf-minke whale.
     """
     )
     return
@@ -139,8 +141,9 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Orcas
-    Orcas are masters of sound, using clicks, whistles, and calls to hunt and communicate. Researchers track these acoustic “dialects” to study pod culture, migration paths, and the intricate relationships within orca families.
+    ## Isabelle Brandicourt
+
+    Isabelle is a first-year PhD student at the University of Washington studying distributed acoustic sensing under the supervision of Shima Abadi. Her favorite oceanic sound is ORCA-JPOD-S10.
     """
     )
     return
@@ -150,8 +153,9 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Icebergs
-    Icebergs crack, groan, and fizz as they break apart and melt, creating a symphony of icy sounds. Scientists use these acoustic clues to monitor iceberg movement, track melting rates, and better understand how climate change is reshaping our polar seas.
+    ## Derya Gumustel
+
+    Derya is web-developer at Sound Data Science. Her favorite oceanic sound is an osprey call.
     """
     )
     return
@@ -161,8 +165,9 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Sperm Whale
-    Sperm whales communicate using patterns of clicks called codas, forming distinct dialects for different family groups. Acoustic recordings allow scientists to decode these social structures, follow deep-diving hunts, and reveal how whale cultures pass knowledge across generations.
+    ## Oluwatofunmi Adeboye
+
+    Oluwatofunmi is a second-year MS student at the University of Hawaii at Manoa studying Geophysics. His favorite oceanic sound is an earthquake.
     """
     )
     return
@@ -172,8 +177,9 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Humpback Whale
-    Humpbacks sing long, complex songs that can travel across entire ocean basins. By recording and analyzing these melodies, researchers learn how whales communicate, track migration routes, and even study how ocean noise affects marine life.
+    ## Dwight Owens
+
+    Dwight is a Development Manager at Ocean Networks Canada and served as a mentor for this project. His favorite oceanic sound is a fish grunt.
     """
     )
     return
@@ -235,13 +241,46 @@ def _(mo):
 
 @app.cell(column=1)
 def _(mo):
-    nav_menu = mo.nav_menu({
-        "/": "Mix Sounds",  # internal
-        "/learn": "Learn More",  # internal
-        "/about": "About the Team",  # internal
-        "/quake": "Gather More Data"
-    })
-    nav_menu
+    import webbrowser
+    gather_button = mo.ui.button(
+        label="Gather Data",
+        kind='neutral',
+        on_click=lambda _: webbrowser.open("http://10.19.147.127:8000/gather", new=0)  # URL for Gather page
+    )
+    gather_button
+    return (webbrowser,)
+
+
+@app.cell
+def _(mo, webbrowser):
+    mix_button = mo.ui.button(
+        label="Mix Sounds",
+        kind='neutral',
+        on_click=lambda _: webbrowser.open("http://10.19.147.127:8000/", new=0)  # URL for Mixer page
+    )
+    mix_button
+    return
+
+
+@app.cell
+def _(mo, webbrowser):
+    educate_button = mo.ui.button(
+        label="Learn More",
+        kind='neutral',
+        on_click=lambda _: webbrowser.open("http://10.19.147.127:8000/learn", new=0)  # URL for Learn More
+    )
+    educate_button
+    return
+
+
+@app.cell
+def _(mo, webbrowser):
+    about_button = mo.ui.button(
+        label="About the Team",
+        kind='neutral',
+        on_click=lambda _: webbrowser.open("http://10.19.147.127:8000/about", new=0)  # URL for About
+    )
+    about_button
     return
 
 
