@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "fastbootstrap": "^2.2.0"
+  },
+  "name": "ohw25_proj_riptideremix",
+  "version": "1.0.0",
+  "description": "This repository hosts the source code for an OceanHackWeek2025 project to allow for audio classificaiton and audio-synthesis of acoustic soundsources.",
+  "main": "index.js",
+  "devDependencies": {
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oceanhackweek/ohw25_proj_RiptideRemix.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/oceanhackweek/ohw25_proj_RiptideRemix/issues"
+  },
+  "homepage": "https://github.com/oceanhackweek/ohw25_proj_RiptideRemix#readme"
+}
