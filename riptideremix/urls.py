@@ -17,10 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from .views import HomeView
+from .views import HomeView, LearnView
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
+    path('learn/', LearnView.as_view(), name='learn'),
     path('mixer/', include('mixer.urls')),
     path('admin/', admin.site.urls),
 ]
