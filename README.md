@@ -20,7 +20,7 @@ You can start with a simple structure and as you progress you can refine it to c
 
 | Name                  | Role                |
 |-----------------------|---------------------|
-| Kasey Castello        | Web page designing         |
+| Kasey Castello        | Web page designing / Educational Materials / Acoustic Processing         |
 | Mattie Toll           | Bioacoustic processing / Machine Learning         |
 | Oluwatofunmi Adeboye  | Seismic guru         |
 | Isabelle Brandicourt  | Acoustic processing / mixing / data sourcing         |
