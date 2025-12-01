@@ -1,0 +1,948 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1>UI gallery</h1>
+    <p>A simple demonstration of what elements of the site look like.</p>
+    <ul>
+        <li>
+            <a href="#headings">Headings</a>
+        </li>
+        <li>
+            <a href="#colors">Colors</a>
+            <ul>
+                <li>
+                    <a href="#dark-colors">Dark</a>
+                </li>
+                <li>
+                    <a href="#light-colors">Light</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#forms">Forms</a>
+            <ul>
+                <li>
+                    <a href="#tom-select">Tom Select</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#hero">Hero text</a>
+        </li>
+        <li>
+            <a href="#buttons">Buttons</a>
+        </li>
+        <li>
+            <a href="#tables">Tables</a>
+            <ul>
+                <li>
+                    <a href="#plain-table">Plain table</a>
+                </li>
+                <li>
+                    <a href="#sticky-table">Sticky table</a>
+                </li>
+                <li>
+                    <a href="#matrix">Matrix</a>
+                </li>
+                <li>
+                    <a href="#django-tables2">django-tables2</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#definition-lists">Definition lists</a>
+        </li>
+    </ul>
+    <h1 id="headings">Headings</h1>
+    <h1>Level one heading</h1>
+    <h2>Level two heading</h2>
+    <h3>Level three heading</h3>
+    <h4>Level four heading</h4>
+    <h5>Level five heading</h5>
+    <h6>Level six heading</h6>
+    {% lorem 1 p %}
+    <h1>Level one heading preceded and followed by a paragraph</h1>
+    {% lorem 1 p %}
+    <h2>Level two heading preceded and followed by a paragraph</h2>
+    {% lorem 1 p %}
+    <h3>Level three heading preceded and followed by a paragraph</h3>
+    {% lorem 1 p %}
+    <h4>Level four heading preceded and followed by a paragraph</h4>
+    {% lorem 1 p %}
+    <h5>Level five heading preceded and followed by a paragraph</h5>
+    {% lorem 1 p %}
+    <h6>Level six heading preceded and followed by a paragraph</h6>
+    {% lorem 1 p %}
+    <h1 id="colors">Colors</h1>
+    <h2 id="dark-colors">Dark colors</h2>
+    {% for name, code in dark_colors %}
+        <h3 class="{{ name }}">{{ name }}</h3>
+        <article class="bg-{{ name }}">
+            <p>{{ name }} ({{ code }})</p>
+        </article>
+    {% endfor %}
+    <article class="bg-black">
+        <h2 id="light-colors" class="white">Light colors</h2>
+        {% for name, code in light_colors %}
+            <h3 class="{{ name }}">{{ name }}</h3>
+            <article class="bg-{{ name }}">
+                <p>{{ name }} ({{ code }})</p>
+            </article>
+        {% endfor %}
+    </article>
+    <h1 id="forms">Forms</h1>
+    <p>
+        A form which demonstrates the look and behavior of each of <a href="https://docs.djangoproject.com/en/stable/ref/forms/fields">the built-in Django field types</a>.
+    </p>
+    {% if override_default_required_behavior_of_form %}
+        <p>
+            You've chosen to override the default behavior and make each field optional. <a href="{% url "gallery" %}{% querystring override_default_required_behavior_of_form=None %}#forms">Restore default required behavior</a>.
+        </p>
+    {% else %}
+        <p>
+            By default, each of these fields is required. <a href="{% url "gallery" %}{% querystring override_default_required_behavior_of_form=True %}#forms">Make the fields optional</a>.
+        </p>
+    {% endif %}
+    <form method="get" action="{% url "gallery" %}#forms">
+        {% if override_default_required_behavior_of_form %}
+            <input type="hidden" name="override_default_required_behavior_of_form">
+        {% endif %}
+        {{ form }}
+        <button>Submit</button>
+        <a href="{% url "gallery" %}#forms" role="button">Reset</a>
+    </form>
+    <h3>
+        <label for="vanilla-for-comparison">Select</label>
+    </h3>
+    <select id="vanilla-for-comparison">
+        <option>Sydney</option>
+        <option>Geelong</option>
+        <option>Hawthorn</option>
+        <option>Greater Western Sydney</option>
+        <option>Adelaide</option>
+        <option>West Coast</option>
+        <option>Western Bulldogs</option>
+        <option>North Melbourne</option>
+        <option>St Kilda</option>
+        <option>Port Adelaide</option>
+        <option>Melbourne</option>
+        <option>Collingwood</option>
+        <option>Richmond</option>
+        <option>Carlton</option>
+        <option>Gold Coast</option>
+        <option>Fremantle</option>
+        <option>Brisbane Lions</option>
+        <option>Essendon</option>
+    </select>
+    <h1 id="hero">Hero text</h1>
+    <p class="hero">And then a hero comes along, with the strength to carry on… 🎶️</p>
+    <h1 id="buttons">Buttons</h1>
+    <p>
+        <button>Button</button>
+    </p>
+    <p>
+        <a href="" role="button">Link with role</a>
+    </p>
+    <p>
+        <span role="button">Span with role</span>
+    </p>
+    <p>
+        <div role="button">Div with role</div>
+    </p>
+
+    <h2>Buttons in headings</h2>
+    <h1>
+        Heading 1
+        <button>Button 1</button>
+    </h1>
+    <p>Here is some text between two headings.</p>
+    <h2>
+        Heading 2
+        <button>Button 2</button>
+    </h2>
+    <p>Here is some text between two headings.</p>
+    <h3>
+        Heading 3
+        <button>Button 3</button>
+    </h3>
+    <p>Here is some text between two headings.</p>
+    <h4>
+        Heading 4
+        <button>Button 4</button>
+    </h4>
+    <p>Here is some text between two headings.</p>
+    <h5>
+        Heading 5
+        <button>Button 5</button>
+    </h5>
+    <p>Here is some text between two headings.</p>
+    <h6>
+        Heading 6
+        <button>Button 6</button>
+    </h6>
+    <p>Here is some text between two headings.</p>
+    <h1>
+        Heading 1
+        <a role="button">Link as button</a>
+    </h1>
+    <h1>Rounded Boxes</h1>
+    <div class="rounded-box-row">
+        <div class="rounded-box bg-cream-1 border-gray-2">Rounded Box 1</div>
+        <div class="rounded-box bg-error-red-2 border-2">Rounded Box 2</div>
+    </div>
+    <h1 id="tables">Tables</h1>
+    <h2 id="plain-table">Plain table</h2>
+    <table>
+        <tr>
+            <th scope="col">Team</th>
+            <th scope="col">
+                <span class="vertical">Played</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Won</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Lost</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Drawn</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Points for</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Points against</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Point percentage</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Points</span>
+            </th>
+        </tr>
+        <tr>
+            <th scope="row">Sydney</th>
+            <td>22</td>
+            <td>17</td>
+            <td>5</td>
+            <td>0</td>
+            <td>2221</td>
+            <td>1469</td>
+            <td>151.2</td>
+            <td>68</td>
+        </tr>
+        <tr>
+            <th scope="row">Geelong</th>
+            <td>22</td>
+            <td>17</td>
+            <td>5</td>
+            <td>0</td>
+            <td>2235</td>
+            <td>1554</td>
+            <td>143.8</td>
+            <td>68</td>
+        </tr>
+        <tr>
+            <th scope="row">Hawthorn</th>
+            <td>22</td>
+            <td>17</td>
+            <td>5</td>
+            <td>0</td>
+            <td>2134</td>
+            <td>1800</td>
+            <td>118.6</td>
+            <td>68</td>
+        </tr>
+        <tr>
+            <th scope="row">Greater Western Sydney</th>
+            <td>22</td>
+            <td>16</td>
+            <td>6</td>
+            <td>0</td>
+            <td>2380</td>
+            <td>1663</td>
+            <td>143.1</td>
+            <td>64</td>
+        </tr>
+        <tr>
+            <th scope="row">Adelaide</th>
+            <td>22</td>
+            <td>16</td>
+            <td>6</td>
+            <td>0</td>
+            <td>2483</td>
+            <td>1795</td>
+            <td>138.3</td>
+            <td>64</td>
+        </tr>
+        <tr>
+            <th scope="row">West Coast</th>
+            <td>22</td>
+            <td>16</td>
+            <td>6</td>
+            <td>0</td>
+            <td>2181</td>
+            <td>1678</td>
+            <td>130.0</td>
+            <td>64</td>
+        </tr>
+        <tr>
+            <th scope="row">Western Bulldogs</th>
+            <td>22</td>
+            <td>15</td>
+            <td>7</td>
+            <td>0</td>
+            <td>1857</td>
+            <td>1609</td>
+            <td>115.4</td>
+            <td>60</td>
+        </tr>
+        <tr>
+            <th scope="row">North Melbourne</th>
+            <td>22</td>
+            <td>12</td>
+            <td>10</td>
+            <td>0</td>
+            <td>1956</td>
+            <td>1859</td>
+            <td>105.2</td>
+            <td>48</td>
+        </tr>
+        <tr>
+            <th scope="row">St Kilda</th>
+            <td>22</td>
+            <td>12</td>
+            <td>10</td>
+            <td>0</td>
+            <td>1953</td>
+            <td>2041</td>
+            <td>95.7</td>
+            <td>48</td>
+        </tr>
+        <tr>
+            <th scope="row">Port Adelaide</th>
+            <td>22</td>
+            <td>10</td>
+            <td>12</td>
+            <td>0</td>
+            <td>2055</td>
+            <td>1939</td>
+            <td>106.0</td>
+            <td>40</td>
+        </tr>
+        <tr>
+            <th scope="row">Melbourne</th>
+            <td>22</td>
+            <td>10</td>
+            <td>12</td>
+            <td>0</td>
+            <td>1944</td>
+            <td>1991</td>
+            <td>97.6</td>
+            <td>40</td>
+        </tr>
+        <tr>
+            <th scope="row">Collingwood</th>
+            <td>22</td>
+            <td>9</td>
+            <td>13</td>
+            <td>0</td>
+            <td>1910</td>
+            <td>1998</td>
+            <td>95.6</td>
+            <td>36</td>
+        </tr>
+        <tr>
+            <th scope="row">Richmond</th>
+            <td>22</td>
+            <td>8</td>
+            <td>14</td>
+            <td>0</td>
+            <td>1713</td>
+            <td>2155</td>
+            <td>79.5</td>
+            <td>32</td>
+        </tr>
+        <tr>
+            <th scope="row">Carlton</th>
+            <td>22</td>
+            <td>7</td>
+            <td>15</td>
+            <td>0</td>
+            <td>1568</td>
+            <td>1978</td>
+            <td>79.3</td>
+            <td>28</td>
+        </tr>
+        <tr>
+            <th scope="row">Gold Coast</th>
+            <td>22</td>
+            <td>6</td>
+            <td>16</td>
+            <td>0</td>
+            <td>1778</td>
+            <td>2273</td>
+            <td>78.2</td>
+            <td>24</td>
+        </tr>
+        <tr>
+            <th scope="row">Fremantle</th>
+            <td>22</td>
+            <td>4</td>
+            <td>18</td>
+            <td>0</td>
+            <td>1574</td>
+            <td>2119</td>
+            <td>74.3</td>
+            <td>16</td>
+        </tr>
+        <tr>
+            <th scope="row">Brisbane Lions</th>
+            <td>22</td>
+            <td>3</td>
+            <td>19</td>
+            <td>0</td>
+            <td>1770</td>
+            <td>2872</td>
+            <td>61.6</td>
+            <td>12</td>
+        </tr>
+        <tr>
+            <th scope="row">Essendon</th>
+            <td>22</td>
+            <td>3</td>
+            <td>19</td>
+            <td>0</td>
+            <td>1437</td>
+            <td>2356</td>
+            <td>61.0</td>
+            <td>12</td>
+        </tr>
+    </table>
+    <h2 id="sticky-table">Sticky table</h2>
+    <table class="sticky">
+        <thead>
+            <tr>
+                <th scope="col">Team</th>
+                <th scope="col">
+                    <span class="vertical">Played</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Won</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Lost</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Drawn</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Points for</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Points against</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Point percentage</span>
+                </th>
+                <th scope="col">
+                    <span class="vertical">Points</span>
+                </th>
+                <th scope="col">Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Sydney</th>
+                <td>22</td>
+                <td>17</td>
+                <td>5</td>
+                <td>0</td>
+                <td>2221</td>
+                <td>1469</td>
+                <td>151.2</td>
+                <td>68</td>
+                <td>
+                    <p>Lost the grand final to Western Bulldogs.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Geelong</th>
+                <td>22</td>
+                <td>17</td>
+                <td>5</td>
+                <td>0</td>
+                <td>2235</td>
+                <td>1554</td>
+                <td>143.8</td>
+                <td>68</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Hawthorn</th>
+                <td>22</td>
+                <td>17</td>
+                <td>5</td>
+                <td>0</td>
+                <td>2134</td>
+                <td>1800</td>
+                <td>118.6</td>
+                <td>68</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Greater Western Sydney</th>
+                <td>22</td>
+                <td>16</td>
+                <td>6</td>
+                <td>0</td>
+                <td>2380</td>
+                <td>1663</td>
+                <td>143.1</td>
+                <td>64</td>
+                <td>
+                    <p>
+                        <small>Booo</small>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Adelaide</th>
+                <td>22</td>
+                <td>16</td>
+                <td>6</td>
+                <td>0</td>
+                <td>2483</td>
+                <td>1795</td>
+                <td>138.3</td>
+                <td>64</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">West Coast</th>
+                <td>22</td>
+                <td>16</td>
+                <td>6</td>
+                <td>0</td>
+                <td>2181</td>
+                <td>1678</td>
+                <td>130.0</td>
+                <td>64</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Western Bulldogs</th>
+                <td>22</td>
+                <td>15</td>
+                <td>7</td>
+                <td>0</td>
+                <td>1857</td>
+                <td>1609</td>
+                <td>115.4</td>
+                <td>60</td>
+                <td>
+                    <p>Won their first premiership since 1954.</p>
+                    <p>The grand final was Attended by noteworthy web developer Craig Anderson.</p>
+                    <p>https://en.wikipedia.org/wiki/2016_AFL_Grand_Final</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">North Melbourne</th>
+                <td>22</td>
+                <td>12</td>
+                <td>10</td>
+                <td>0</td>
+                <td>1956</td>
+                <td>1859</td>
+                <td>105.2</td>
+                <td>48</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">St Kilda</th>
+                <td>22</td>
+                <td>12</td>
+                <td>10</td>
+                <td>0</td>
+                <td>1953</td>
+                <td>2041</td>
+                <td>95.7</td>
+                <td>48</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Port Adelaide</th>
+                <td>22</td>
+                <td>10</td>
+                <td>12</td>
+                <td>0</td>
+                <td>2055</td>
+                <td>1939</td>
+                <td>106.0</td>
+                <td>40</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Melbourne</th>
+                <td>22</td>
+                <td>10</td>
+                <td>12</td>
+                <td>0</td>
+                <td>1944</td>
+                <td>1991</td>
+                <td>97.6</td>
+                <td>40</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Collingwood</th>
+                <td>22</td>
+                <td>9</td>
+                <td>13</td>
+                <td>0</td>
+                <td>1910</td>
+                <td>1998</td>
+                <td>95.6</td>
+                <td>36</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Richmond</th>
+                <td>22</td>
+                <td>8</td>
+                <td>14</td>
+                <td>0</td>
+                <td>1713</td>
+                <td>2155</td>
+                <td>79.5</td>
+                <td>32</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Carlton</th>
+                <td>22</td>
+                <td>7</td>
+                <td>15</td>
+                <td>0</td>
+                <td>1568</td>
+                <td>1978</td>
+                <td>79.3</td>
+                <td>28</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Gold Coast</th>
+                <td>22</td>
+                <td>6</td>
+                <td>16</td>
+                <td>0</td>
+                <td>1778</td>
+                <td>2273</td>
+                <td>78.2</td>
+                <td>24</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Fremantle</th>
+                <td>22</td>
+                <td>4</td>
+                <td>18</td>
+                <td>0</td>
+                <td>1574</td>
+                <td>2119</td>
+                <td>74.3</td>
+                <td>16</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Brisbane Lions</th>
+                <td>22</td>
+                <td>3</td>
+                <td>19</td>
+                <td>0</td>
+                <td>1770</td>
+                <td>2872</td>
+                <td>61.6</td>
+                <td>12</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th scope="row">Essendon</th>
+                <td>22</td>
+                <td>3</td>
+                <td>19</td>
+                <td>0</td>
+                <td>1437</td>
+                <td>2356</td>
+                <td>61.0</td>
+                <td>12</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <h2 id="matrix">Matrix</h2>
+    <table class="matrix">
+        <tr>
+            <th scope="col">Team</th>
+            <th scope="col">
+                <span class="vertical">Played</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Won</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Lost</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Drawn</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Points&nbsp;for</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Points&nbsp;against</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Point&nbsp;percentage</span>
+            </th>
+            <th scope="col">
+                <span class="vertical">Points</span>
+            </th>
+        </tr>
+        <tr>
+            <th scope="row">Sydney</th>
+            <td>22</td>
+            <td class="bg-cream-1">17</td>
+            <td>5</td>
+            <td>0</td>
+            <td>2221</td>
+            <td>1469</td>
+            <td class="bg-cream-1">151.2</td>
+            <td class="bg-cream-1">68</td>
+        </tr>
+        <tr>
+            <th scope="row">Geelong</th>
+            <td>22</td>
+            <td class="bg-cream-1">17</td>
+            <td>5</td>
+            <td>0</td>
+            <td>2235</td>
+            <td>1554</td>
+            <td class="bg-cream-1">143.8</td>
+            <td class="bg-cream-1">68</td>
+        </tr>
+        <tr>
+            <th scope="row">Hawthorn</th>
+            <td>22</td>
+            <td class="bg-cream-1">17</td>
+            <td>5</td>
+            <td>0</td>
+            <td>2134</td>
+            <td>1800</td>
+            <td class="bg-cream-1">118.6</td>
+            <td class="bg-cream-1">68</td>
+        </tr>
+        <tr>
+            <th scope="row">Greater Western Sydney</th>
+            <td>22</td>
+            <td class="bg-cream-1">16</td>
+            <td>6</td>
+            <td>0</td>
+            <td>2380</td>
+            <td>1663</td>
+            <td class="bg-cream-1">143.1</td>
+            <td class="bg-cream-1">64</td>
+        </tr>
+        <tr>
+            <th scope="row">Adelaide</th>
+            <td>22</td>
+            <td class="bg-cream-1">16</td>
+            <td>6</td>
+            <td>0</td>
+            <td>2483</td>
+            <td>1795</td>
+            <td class="bg-cream-1">138.3</td>
+            <td class="bg-cream-1">64</td>
+        </tr>
+        <tr>
+            <th scope="row">West Coast</th>
+            <td>22</td>
+            <td class="bg-cream-1">16</td>
+            <td>6</td>
+            <td>0</td>
+            <td>2181</td>
+            <td>1678</td>
+            <td class="bg-cream-1">130.0</td>
+            <td class="bg-cream-1">64</td>
+        </tr>
+        <tr>
+            <th scope="row">Western Bulldogs</th>
+            <td>22</td>
+            <td class="bg-cream-1">15</td>
+            <td>7</td>
+            <td>0</td>
+            <td>1857</td>
+            <td>1609</td>
+            <td class="bg-cream-1">115.4</td>
+            <td class="bg-cream-1">60</td>
+        </tr>
+        <tr>
+            <th scope="row">North Melbourne</th>
+            <td>22</td>
+            <td class="bg-cream-1">12</td>
+            <td>10</td>
+            <td>0</td>
+            <td>1956</td>
+            <td>1859</td>
+            <td class="bg-cream-1">105.2</td>
+            <td class="bg-cream-1">48</td>
+        </tr>
+        <tr>
+            <th scope="row">St Kilda</th>
+            <td>22</td>
+            <td class="bg-cream-1">12</td>
+            <td>10</td>
+            <td>0</td>
+            <td>1953</td>
+            <td>2041</td>
+            <td class="bg-error-red-2">95.7</td>
+            <td class="bg-error-red-2">48</td>
+        </tr>
+        <tr>
+            <th scope="row">Port Adelaide</th>
+            <td>22</td>
+            <td>10</td>
+            <td class="bg-error-red-2">12</td>
+            <td>0</td>
+            <td>2055</td>
+            <td>1939</td>
+            <td class="bg-cream-1">106.0</td>
+            <td class="bg-error-red-2">40</td>
+        </tr>
+        <tr>
+            <th scope="row">Melbourne</th>
+            <td>22</td>
+            <td>10</td>
+            <td class="bg-error-red-2">12</td>
+            <td>0</td>
+            <td>1944</td>
+            <td>1991</td>
+            <td class="bg-error-red-2">97.6</td>
+            <td class="bg-error-red-2">40</td>
+        </tr>
+        <tr>
+            <th scope="row">Collingwood</th>
+            <td>22</td>
+            <td>9</td>
+            <td class="bg-error-red-2">13</td>
+            <td>0</td>
+            <td>1910</td>
+            <td>1998</td>
+            <td class="bg-error-red-2">95.6</td>
+            <td class="bg-error-red-2">36</td>
+        </tr>
+        <tr>
+            <th scope="row">Richmond</th>
+            <td>22</td>
+            <td>8</td>
+            <td class="bg-error-red-2">14</td>
+            <td>0</td>
+            <td>1713</td>
+            <td>2155</td>
+            <td class="bg-error-red-2">79.5</td>
+            <td class="bg-error-red-2">32</td>
+        </tr>
+        <tr>
+            <th scope="row">Carlton</th>
+            <td>22</td>
+            <td>7</td>
+            <td class="bg-error-red-2">15</td>
+            <td>0</td>
+            <td>1568</td>
+            <td>1978</td>
+            <td class="bg-error-red-2">79.3</td>
+            <td class="bg-error-red-2">28</td>
+        </tr>
+        <tr>
+            <th scope="row">Gold Coast</th>
+            <td>22</td>
+            <td>6</td>
+            <td class="bg-error-red-2">16</td>
+            <td>0</td>
+            <td>1778</td>
+            <td>2273</td>
+            <td class="bg-error-red-2">78.2</td>
+            <td class="bg-error-red-2">24</td>
+        </tr>
+        <tr>
+            <th scope="row">Fremantle</th>
+            <td>22</td>
+            <td>4</td>
+            <td class="bg-error-red-2">18</td>
+            <td>0</td>
+            <td>1574</td>
+            <td>2119</td>
+            <td class="bg-error-red-2">74.3</td>
+            <td class="bg-error-red-2">16</td>
+        </tr>
+        <tr>
+            <th scope="row">Brisbane Lions</th>
+            <td>22</td>
+            <td>3</td>
+            <td class="bg-error-red-2">19</td>
+            <td>0</td>
+            <td>1770</td>
+            <td>2872</td>
+            <td class="bg-error-red-2">61.6</td>
+            <td class="bg-error-red-2">12</td>
+        </tr>
+        <tr>
+            <th scope="row">Essendon</th>
+            <td>22</td>
+            <td>3</td>
+            <td class="bg-error-red-2">19</td>
+            <td>0</td>
+            <td>1437</td>
+            <td>2356</td>
+            <td class="bg-error-red-2">61.0</td>
+            <td class="bg-error-red-2">12</td>
+        </tr>
+    </table>
+
+    <h1 id="definition-lists">Definition lists</h1>
+    <dl>
+        <dt>Website</dt>
+        <dd>
+            True
+        </dd>
+        <dt>Book</dt>
+        <dd>
+            False
+        </dd>
+        <dt>Dog</dt>
+        <dd>
+            A domesticated carnivorous mammal that typically has a long snout, an acute sense of smell, non-retractable claws, and a barking, howling, or whining voice.
+        </dd>
+        <dt>Cat</dt>
+        <dd>
+            A small domesticated carnivorous mammal with soft fur, a short snout, and retractable claws. It is widely kept as a pet or for catching mice, and many breeds have been developed.
+        </dd>
+        <dd>
+            (especially among jazz enthusiasts) a man.
+        </dd>
+        <dt>Lorem ipsum</dt>
+        <dd>
+            <p>
+                Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development to fill empty spaces in a layout that does not yet have content.
+            </p>
+            <p>
+                Lorem ipsum is typically a corrupted version of <i>De finibus bonorum et malorum</i>, a 1st-century BC text by the Roman statesman and philosopher Cicero, with words altered, added, and removed to make it nonsensical and improper Latin. The first two words themselves are a truncation of dolorem ipsum ("pain itself").
+            </p>
+            <p>
+                Versions of the Lorem ipsum text have been used in typesetting at least since the 1960s, when it was popularized by advertisements for Letraset transfer sheets.[1] Lorem ipsum was introduced to the digital world in the mid-1980s, when Aldus employed it in graphic and word-processing templates for its desktop publishing program PageMaker. Other popular word processors, including Pages and Microsoft Word, have since adopted Lorem ipsum,[2] as have many LaTeX packages,[3][4][5] web content managers such as Joomla! and WordPress, and CSS libraries such as Semantic UI.
+            </p>
+        </dd>
+    </dl>
+    <p>Some text which appears after the definition list.</p>
+{% endblock content %}
