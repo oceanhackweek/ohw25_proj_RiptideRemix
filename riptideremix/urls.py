@@ -22,5 +22,9 @@ from .views import HomeView
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('mixer/', include('mixer.urls')),
+    path('data/', TemplateView.as_view(template_name='riptideremix/data.html'), name='data'),
+    path('education/', TemplateView.as_view(template_name='riptideremix/education.html'), name='education'),
+    path('about/', TemplateView.as_view(template_name='riptideremix/about.html'), name='about'),
+    path('gallery/', TemplateView.as_view(template_name='riptideremix/gallery.html'), name='gallery'),
     path('admin/', admin.site.urls),
 ]
