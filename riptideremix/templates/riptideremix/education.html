@@ -5,6 +5,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'learn_page/css/learn.css' %}">
+<style>
+
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,50 +16,68 @@
   <!-- HEADER -->
   <section class="intro">
     <h1>The Ocean Soundscape</h1>
+    <hr style="margin: 1rem 0; border-top: 1px solid #0a0a0a;">
 
     <p>
       Sound is the ocean’s invisible language. It carries essential information about the behavior of marine animals, 
       the dynamics of natural events, and countless other underwater processes. Read more below about different oceanic sounds 
-      and how researchers use them in their work.<br>
-      <hr style="margin: 2rem 0; border-top: 2px solid #0a0a0a;">
-      <strong>BIOLOGICAL</strong><br> Many marine animal species rely on sound to navigate, find food, 
-      and communicate with each other, especially in environments where visibility is limited. 
-      By studying their vocalizations and acoustic behaviors, scientists can learn about migration routes, mating strategies, and social interactions. 
-      Understanding these patterns not only helps us uncover the lives of these animals but also guides efforts to protect them from threats like 
-      habitat disruption and human-made noise.<br>
-      <strong>ANTHROPOGENIC</strong><br> Humans add a lot of extra noise to the ocean, 
-      and it’s changing how marine animals live. Imagine living next to a train station with 
-      trains passing by every minute of every single day. That’s what it’s like for some ocean creatures. 
-      Boats, construction, sonar, and aircraft create loud sounds that can travel for miles, sometimes drowning 
-      out the calls of whales, fish, and other marine life. By studying these human-made noises, scientists 
-      can suggest ways to reduce their impact, helping both people and marine animals share the ocean more peacefully.<br>
-      <strong>ENVIRONMENTAL</strong> such as earthquakes, waves, wind, and ocean currents constantly generate acoustic energy in the marine environment. 
-      These sounds provide important context for marine life, influencing how animals communicate, navigate, and detect predators or prey. 
-      By studying environmental noise, scientists can also monitor natural events, understand ocean dynamics, and assess how human activity may impact ocean acoustics.
+      and how researchers use them in their work.
     </p>
 
-    <!-- Horizontal line separator -->
-    <hr style="margin: 2rem 0; border-top: 2px solid #0a0a0a;">
+    <!-- Three Columns -->
+    <div class="intro-columns">
+      <div class="section-column bio">
+        <h2>BIOLOGICAL</h2>
+        <p>
+          Many marine animal species rely on sound to navigate, find food, 
+          and communicate with each other, especially in environments where visibility is limited. 
+          By studying their vocalizations and acoustic behaviors, scientists can learn about migration routes, mating strategies, and social interactions. 
+          Understanding these patterns not only helps us uncover the lives of these animals but also guides efforts to protect them from threats like 
+          habitat disruption and human-made noise.
+        </p>
+      </div>
+
+      <div class="section-column anthro">
+        <h2>ANTHROPOGENIC</h2>
+        <p>
+          Humans add a lot of extra noise to the ocean, 
+          and it’s changing how marine animals live. Imagine living next to a train station with 
+          trains passing by every minute of every single day. That’s what it’s like for some ocean creatures. 
+          Boats, construction, sonar, and aircraft create loud sounds that can travel for miles, sometimes drowning 
+          out the calls of whales, fish, and other marine life. By studying these human-made noises, scientists 
+          can suggest ways to reduce their impact, helping both people and marine animals share the ocean more peacefully.
+        </p>
+      </div>
+
+      <div class="section-column env">
+        <h2>ENVIRONMENTAL</h2>
+        <p>
+          Earthquakes, waves, wind, and ocean currents constantly generate acoustic energy in the marine environment. 
+          These sounds provide important context for marine life, influencing how animals communicate, navigate, and detect predators or prey. 
+          By studying environmental noise, scientists can also monitor natural events, understand ocean dynamics, and assess how human activity may impact ocean acoustics.
+        </p>
+      </div>
+    </div>
 
     <!-- Clippy section -->
     <div class="d-flex align-items-start mt-3 gap-3">
-      <!-- Clippy Image -->
       <img
         src="{% static 'images/Clippy/base.png' %}"
         id="clippyClose"
         alt="Clippy Helper"
-        style="height:60px; width:auto; cursor:pointer; flex-shrink:0;"
+        style="height:30px; width:auto; cursor:pointer; flex-shrink:0;"
         data-url="{% url 'mixer' %}">
-
-      <!-- Blurb Text -->
       <div>
         <p>
-          Scroll horizontally to see many of the acoustic signals that make our
-          oceanic soundscape. <br> If there's one that interests you, click on it to 
-          learn more and hear a sample of the sound. <br>
+          Scroll theough the image below to see many of the acoustic signals that are of importance in the
+          oceanic soundscape. If there's one that interests you, click on it to 
+          learn more and hear a sample of the sound. 
         </p>
       </div>
     </div>
+
+    <hr style="margin: 1rem 0; border-top: 1px solid #0a0a0a;">
+
   </section>
 
   <!-- SCROLLABLE OCEAN -->
@@ -68,11 +89,119 @@
         alt="Ocean background"
       />
 
-      <!-- Sound icons -->
+      <!-- Sample hotspot -->
+      <div class="hotspot" style="top:15.9%; left:3.8%; width:8.7%; height:10.7%;"
+           data-title="Crocodilian"
+           data-header-img="{% static 'learn_page/icons/croc.png' %}"
+           data-description="Crocodiles and alligators use bellows, hisses, and underwater calls to communicate, defend territory, and attract mates. Mother crocodilians can even detect their babies’ contact calls before the eggs hatch, allowing them to prepare for the hatchlings. Scientists are learning more about how these animals produce and perceive sound, and how human-made noise can impact their behavior and communication."
+           data-acoustic-text="ADD ACOUSTIC DESCRIPTION HERE."
+           data-timeseries-img="{% static 'learn_page/images/cargoship_timeseries.jpg' %}"
+           data-spectrogram-img="{% static 'learn_page/images/cargoship_spectrogram.jpg' %}"
+           data-audio="{% static 'learn_page/audio/cargoship_sound.mp3' %}">
+      </div>
+      <!-- Hotspots -->
+      <div class="hotspot" style="top:15.9%; left:3.8%; width:8.7%; height:10.7%;" data-title="Crocodilian" data-header-img="{% static 'learn_page/icons/croc.png' %}" data-description="Crocodilian description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/crocodilian_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/crocodilian_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/crocodilian.mp3' %}"></div>
+
+      <div class="hotspot" style="top:85.9%; left:0.91%; width:4.34%; height:8.11%;" data-title="Chorousing Fish" data-header-img="{% static 'learn_page/icons/Plainfin_Midshipman.JPG' %}" data-description="Fish chorus description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/fish_chorus_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/fish_chorus_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/fish_chorus.mp3' %}"></div>
+
+      <div class="hotspot" style="top:5.2%; left:15.4%; width:5.9%; height:33.7%;" data-title="Oil Drilling" data-header-img="{% static 'learn_page/icons/oil.jpg' %}" data-description="Oil Drilling description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/oil_drilling_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/oil_drilling_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/oil_drilling.mp3' %}"></div>
+
+      <div class="hotspot" style="top:60.8%; left:7.2%; width:4.6%; height:14.1%;" data-title="Schooling Fish" data-header-img="{% static 'learn_page/icons/fish.jpg' %}" data-description="Schooling Fish description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/schooling_fish_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/schooling_fish_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/schooling_fish.mp3' %}"></div>
+
+      <div class="hotspot" style="top:74.4%; left:17.8%; width:5.7%; height:16.1%;" data-title="Humpback Whale" data-header-img="{% static 'learn_page/icons/mysticete.png' %}" data-description="Humpback Whale description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/humpback_whale_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/humpback_whale_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/humpback_whale.mp3' %}"></div>
+
+      <div class="hotspot" style="top:57.2%; left:26.6%; width:9.5%; height:16.4%;" data-title="Mysticete" data-header-img="{% static 'learn_page/icons/blue.jpg' %}"  data-description="Gray Whale description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/gray_whale_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/gray_whale_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/gray_whale.mp3' %}"></div>
+
+      <div class="hotspot" style="top:15.2%; left:26.3%; width:11.5%; height:33.2%;" data-title="Fishfinders and Echosounders" data-header-img="{% static 'learn_page/icons/fishfind.jpg' %}" data-description="Fishfinders and Echosounders description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/fishfinders_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/fishfinders_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/fishfinders.mp3' %}"></div>
+
+      <div class="hotspot" style="top:5.2%; left:41.3%; width:12.2%; height:34.2%;" data-title="Storms and Weather Events" data-header-img="{% static 'learn_page/icons/thunder.jpg' %}" data-description="Storms and Weather Events description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/storms_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/storms_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/storms.mp3' %}"></div>
+
+      <div class="hotspot" style="top:48.3%; left:46.1%; width:10.2%; height:17.6%;" data-title="Sonar" data-header-img="{% static 'learn_page/icons/sub.png' %}" data-description="Sonar description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/sonar_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/sonar_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/sonar.mp3' %}"></div>
+
+      <div class="hotspot" style="top:77.5%; left:54.9%; width:1.8%; height:12.3%;" data-title="Ocean Bottom Seismometer" data-header-img="{% static 'learn_page/icons/obs.png' %}" data-description="Ocean Bottom Seismometer description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/seismometer_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/seismometer_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/seismometer.mp3' %}"></div>
+
+      <div class="hotspot" style="top:81.7%; left:46.6%; width:1.6%; height:16.3%;" data-title="Earthquake" data-header-img="{% static 'learn_page/icons/eq.jpeg' %}" data-description="Earthquake description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/earthquake_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/earthquake_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/earthquake.mp3' %}"></div>
+
+      <div class="hotspot" style="top:13.6%; left:57.7%; width:6.6%; height:21.0%;" data-title="Wind/Waves" data-header-img="{% static 'learn_page/icons/wind.jpg' %}" data-description="Wind/Waves description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/wind_waves_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/wind_waves_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/wind_waves.mp3' %}"></div>
+
+      <div class="hotspot" style="top:65.8%; left:62.1%; width:6.4%; height:18.8%;" data-title="Odontocete" data-header-img="{% static 'learn_page/icons/dolphin.png' %}" data-description="Dolphin description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/dolphin_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/dolphin_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/dolphin.mp3' %}"></div>
+
+      <div class="hotspot" style="top:1.0%; left:71.1%; width:3.3%; height:37.4%;" data-title="Windfarm" data-header-img="{% static 'learn_page/icons/windmill.jpg' %}" data-description="Windfarm description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/windfarm_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/windfarm_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/windfarm.mp3' %}"></div>
       
+      <div class="hotspot" style="top:61.4%; left:74.7%; width:7.1%; height:24.3%;" data-title="Orca" data-header-img="{% static 'learn_page/icons/orca.png' %}" data-description="Orca description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/orca_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/orca_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/orca.mp3' %}"></div>
+
+      <div class="hotspot" style="top:8.9%; left:79.6%; width:7.8%; height:23.0%;" data-title="Rain" data-header-img="{% static 'learn_page/icons/rain.jpg' %}" data-description="Rain description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/rain_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/rain_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/rain.mp3' %}"></div>
+
+      <div class="hotspot" style="top:49.3%; left:83.6%; width:7.5%; height:13.1%;" data-title="Beluga" data-header-img="{% static 'learn_page/icons/beluga.png' %}" data-description="Beluga description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/beluga_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/beluga_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/beluga.mp3' %}"></div>
       
+      <div class="hotspot" style="top:45.4%; left:93.7%; width:2.9%; height:12.8%;" data-title="Walrus" data-header-img="{% static 'learn_page/icons/walrus.jpg' %}" data-description="Walrus description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/walrus_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/walrus_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/walrus.mp3' %}"></div>
+
+      <div class="hotspot" style="top:11.0%; left:95.3%; width:3.9%; height:18.3%;" data-title="Pinniped" data-header-img="{% static 'learn_page/icons/sealion.jpg' %}" data-description="Pinniped description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/pinniped_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/pinniped_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/pinniped.mp3' %}"></div>
+
+      <div class="hotspot" style="top:62.4%; left:38.9%; width:2.4%; height:32.1%;" data-title="Hydrophone Mooring" data-header-img="{% static 'learn_page/icons/HARP.jpg' %}" data-description="Hydrophone Mooring description" data-acoustic-text="Acoustic description" data-timeseries-img="{% static 'learn_page/images/hydrophone_timeseries.jpg' %}" data-spectrogram-img="{% static 'learn_page/images/hydrophone_spectrogram.jpg' %}" data-audio="{% static 'learn_page/audio/hydrophone.mp3' %}"></div>
+
+
+
+      <!-- Sound icons will go here -->
     </div>
   </section>
 
 </div>
+<!-- Modal -->
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div class="modal-header">
+      <img id="modalHeaderImg" src="" alt="Icon image">
+      <h2 id="modalTitle"></h2>
+    </div>
+    <div class="modal-section" id="modalDescription"></div>
+    <div class="modal-section">
+      <p id="modalAcousticText"></p>
+      <img id="modalTimeseriesImg" src="" alt="Timeseries">
+      <img id="modalSpectrogramImg" src="" alt="Spectrogram">
+    </div>
+    <div class="modal-section audio-player">
+      <audio id="modalAudio" controls>
+        <source id="modalAudioSource" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const modal = document.getElementById("infoModal");
+const closeBtn = modal.querySelector(".close");
+
+const modalHeaderImg = document.getElementById("modalHeaderImg");
+const modalTitle = document.getElementById("modalTitle");
+const modalDescription = document.getElementById("modalDescription");
+const modalAcousticText = document.getElementById("modalAcousticText");
+const modalTimeseriesImg = document.getElementById("modalTimeseriesImg");
+const modalSpectrogramImg = document.getElementById("modalSpectrogramImg");
+const modalAudioSource = document.getElementById("modalAudioSource");
+const modalAudio = document.getElementById("modalAudio");
+
+// Show modal on hotspot click
+document.querySelectorAll(".hotspot").forEach(hs => {
+  hs.addEventListener("click", () => {
+    modalTitle.textContent = hs.dataset.title;
+    modalHeaderImg.src = hs.dataset.headerImg;
+    modalDescription.textContent = hs.dataset.description;
+    modalAcousticText.textContent = hs.dataset.acousticText;
+    modalTimeseriesImg.src = hs.dataset.timeseriesImg;
+    modalSpectrogramImg.src = hs.dataset.spectrogramImg;
+    modalAudioSource.src = hs.dataset.audio;
+    modalAudio.load();
+    modal.style.display = "block";
+  });
+});
+
+// Close modal
+closeBtn.addEventListener("click", () => modal.style.display = "none");
+window.addEventListener("click", e => { if (e.target == modal) modal.style.display = "none"; });
+</script>
 {% endblock %}
