@@ -1,123 +1,78 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}Marine Sounds | Riptide Remix{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'learn_page/css/learn.css' %}">
+{% endblock %}
+
 {% block content %}
+<div class="page-container">
 
+  <!-- HEADER -->
+  <section class="intro">
+    <h1>The Ocean Soundscape</h1>
 
-    <div class="container my-5">
-  <h2 class="text-center mb-5 text-primary">Sources of Marine Sounds</h2>
+    <p>
+      Sound is the ocean’s invisible language. It carries essential information about the behavior of marine animals, 
+      the dynamics of natural events, and countless other underwater processes. Read more below about different oceanic sounds 
+      and how researchers use them in their work.<br>
+      <hr style="margin: 2rem 0; border-top: 2px solid #0a0a0a;">
+      <strong>BIOLOGICAL</strong><br> Many marine animal species rely on sound to navigate, find food, 
+      and communicate with each other, especially in environments where visibility is limited. 
+      By studying their vocalizations and acoustic behaviors, scientists can learn about migration routes, mating strategies, and social interactions. 
+      Understanding these patterns not only helps us uncover the lives of these animals but also guides efforts to protect them from threats like 
+      habitat disruption and human-made noise.<br>
+      <strong>ANTHROPOGENIC</strong><br> Humans add a lot of extra noise to the ocean, 
+      and it’s changing how marine animals live. Imagine living next to a train station with 
+      trains passing by every minute of every single day. That’s what it’s like for some ocean creatures. 
+      Boats, construction, sonar, and aircraft create loud sounds that can travel for miles, sometimes drowning 
+      out the calls of whales, fish, and other marine life. By studying these human-made noises, scientists 
+      can suggest ways to reduce their impact, helping both people and marine animals share the ocean more peacefully.<br>
+      <strong>ENVIRONMENTAL</strong> such as earthquakes, waves, wind, and ocean currents constantly generate acoustic energy in the marine environment. 
+      These sounds provide important context for marine life, influencing how animals communicate, navigate, and detect predators or prey. 
+      By studying environmental noise, scientists can also monitor natural events, understand ocean dynamics, and assess how human activity may impact ocean acoustics.
+    </p>
 
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="row g-0 align-items-center">
-          <div class="col-md-4">
-            <img src="{% static 'images/education/iceberg.jpg' %}" class="img-fluid rounded-start" alt="An iceberg">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title mb-1">Icebergs</h5>
-              <p class="card-text">
-                Icebergs crack, groan, and fizz as they break apart and melt, creating a symphony of icy sounds. Scientists use these acoustic clues to monitor iceberg movement, track melting rates, and better understand how climate change is reshaping our polar seas.
-              </p>
-            </div>
-          </div>
-        </div>
+    <!-- Horizontal line separator -->
+    <hr style="margin: 2rem 0; border-top: 2px solid #0a0a0a;">
+
+    <!-- Clippy section -->
+    <div class="d-flex align-items-start mt-3 gap-3">
+      <!-- Clippy Image -->
+      <img
+        src="{% static 'images/Clippy/base.png' %}"
+        id="clippyClose"
+        alt="Clippy Helper"
+        style="height:60px; width:auto; cursor:pointer; flex-shrink:0;"
+        data-url="{% url 'mixer' %}">
+
+      <!-- Blurb Text -->
+      <div>
+        <p>
+          Scroll horizontally to see many of the acoustic signals that make our
+          oceanic soundscape. <br> If there's one that interests you, click on it to 
+          learn more and hear a sample of the sound. <br>
+        </p>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="row g-0 align-items-center">
-          <div class="col-md-4">
-            <img src="{% static 'images/education/eq.jpeg' %}" class="img-fluid rounded-start" alt="">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title mb-1">Earthquakes</h5>
-              <p class="card-text">
-                Underwater earthquakes send out deep, booming rumbles that can travel thousands of miles through the ocean. Acoustic researchers “listen” to these sounds to track seismic activity, map tectonic plates, and even study how energy moves through the Earth.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<br>
+  </section>
 
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="row g-0 align-items-center">
-          <div class="col-md-4">
-            <img src="{% static 'images/education/orca.jpeg' %}" class="img-fluid rounded-start" alt="">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title mb-1">Orcas</h5>
-              <p class="card-text">
-                Orcas are masters of sound, using clicks, whistles, and calls to hunt and communicate. Researchers track these acoustic “dialects” to study pod culture, migration paths, and the intricate relationships within orca families.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- SCROLLABLE OCEAN -->
+  <section class="ocean-scroll">
+    <div class="ocean-track">
+      <img
+        src="{% static 'learn_page/icons/background_wIcons.png' %}"
+        class="ocean-background"
+        alt="Ocean background"
+      />
 
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="row g-0 align-items-center">
-          <div class="col-md-4">
-            <img src="{% static 'images/education/humpback.jpeg' %}" class="img-fluid rounded-start" alt="A drawing of a humpback whale">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title mb-1">Humpback Whale</h5>
-              <p class="card-text">
-                Humpbacks sing long, complex songs that can travel across entire ocean basins. By recording and analyzing these melodies, researchers learn how whales communicate, track migration routes, and even study how ocean noise affects marine life.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Sound icons -->
+      
+      
     </div>
-  </div>
-  <br>
+  </section>
 
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="row g-0 align-items-center">
-          <div class="col-md-4">
-            <img src="{% static 'images/education/bowhead.jpeg' %}" class="img-fluid rounded-start" alt="">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title mb-1">Bowhead Whale</h5>
-              <p class="card-text">
-                Bowhead whales, living in icy Arctic waters, create an incredible variety of songs—sometimes switching “tunes” from year to year. Acoustic monitoring helps researchers follow their movements beneath the ice, study their cultural song traditions, and understand how climate change impacts their habitat.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card shadow-sm h-100">
-        <div class="row g-0 align-items-center">
-          <div class="col-md-4">
-            <img src="{% static 'images/education/sperm.jpeg' %}" class="img-fluid rounded-start" alt="">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title mb-1">Sperm Whale</h5>
-              <p class="card-text">
-                Sperm whales communicate using patterns of clicks called codas, forming distinct dialects for different family groups. Acoustic recordings allow scientists to decode these social structures, follow deep-diving hunts, and reveal how whale cultures pass knowledge across generations.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-{% endblock content %}
+</div>
+{% endblock %}

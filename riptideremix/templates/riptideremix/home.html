@@ -19,9 +19,9 @@
         <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#welcomeModal">
           First Time
         </button>
-        <button type="button" class="btn btn-outline-primary btn-lg" id="experiencedBtn">
+        <a href="{% url 'mixer' %}" class="btn btn-outline-primary btn-lg">
           Experienced Mixer
-        </button>
+        </a>
       </div>
     </div>
 
@@ -58,7 +58,12 @@
                 Click him at any time for detailed explanations of the acoustic controls and the science behind the sounds you’re exploring.
               </p>
               <p>Click Clippy when you're ready to start your first mix!</p>
-              <img src="{% static 'images/Clippy/ready.png' %}" id="clippyClose" alt="Clippy Helper" style="height:120px; width:auto; cursor:pointer;">
+              <img
+                src="{% static 'images/Clippy/ready.png' %}"
+                id="clippyClose"
+                alt="Clippy Helper"
+                style="height:120px; width:auto; cursor:pointer;"
+                data-url="{% url 'mixer' %}">
             </div>
           </div>
         </div>
@@ -126,9 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Clippy closes modal and launches mixer
   clippy.addEventListener("click", function () {
-    modal.hide();
-    welcomeSection.style.display = "none"; // hide everything welcome-related
-    appsSection.style.display = "block"; // show mixer
+  window.location.href = clippy.dataset.url;
   });
 
   // Experienced Mixer: skip modal, show mixer
