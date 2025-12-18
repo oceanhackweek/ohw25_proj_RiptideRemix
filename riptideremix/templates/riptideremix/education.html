@@ -81,6 +81,12 @@
   </section>
 
   <!-- SCROLLABLE OCEAN -->
+
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <button id="soundToggle" class="sound-toggle">
+      🔇 Sound Off
+    </button>
+  </div>
   <section class="ocean-scroll">
     <div class="ocean-track">
       <img
@@ -336,10 +342,6 @@
   </section>
 
 </div>
-<!-- AUDIO UNLOCK HINT -->
-<div id="audioUnlockHint" class="audio-unlock-hint">
-  🔊 Click or scroll to enable audio
-</div>
 
 <!-- MODAL -->
 <div id="infoModal" class="modal">
@@ -360,46 +362,42 @@
 {% block extra_js %}
 <script>
 /* ============================
-   AUDIO UNLOCK (CLICK OR SCROLL)
+   GLOBAL SOUND STATE
 ============================ */
 
-let audioUnlocked = false;
-const unlockHint = document.getElementById("audioUnlockHint");
+let soundEnabled = false;
+let hoverAudio = null;
 
-function unlockAudio() {
-  if (audioUnlocked) return;
-
-  audioUnlocked = true;
-
-  // Silent audio unlock
-  const silent = new Audio();
-  silent.play().catch(() => {});
-
-  // Hide hint
-  if (unlockHint) {
-    unlockHint.classList.add("hidden");
-    setTimeout(() => unlockHint.remove(), 500);
-  }
-
-  document.removeEventListener("click", unlockAudio);
-  document.removeEventListener("scroll", unlockAudio);
-}
-
-document.addEventListener("click", unlockAudio, { once: true });
-document.addEventListener("scroll", unlockAudio, { once: true });
+const toggleBtn = document.getElementById("soundToggle");
 
 /* ============================
-   HOVER AUDIO (LOOPING)
+   TOGGLE SOUND ON / OFF
 ============================ */
 
-let hoverAudio = null;
+toggleBtn.addEventListener("click", () => {
+  soundEnabled = !soundEnabled;
+
+  toggleBtn.textContent = soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
+  toggleBtn.classList.toggle("on", soundEnabled);
+
+  // Stop all audio immediately when turning OFF
+  if (!soundEnabled && hoverAudio) {
+    hoverAudio.pause();
+    hoverAudio.currentTime = 0;
+    hoverAudio = null;
+  }
+});
+
+/* ============================
+   HOVER AUDIO
+============================ */
 
 document.querySelectorAll(".hotspot").forEach(hs => {
   const audioSrc = hs.dataset.audio;
   if (!audioSrc || hs.dataset.modalType === "no-sound") return;
 
   hs.addEventListener("mouseenter", () => {
-    if (!audioUnlocked) return;
+    if (!soundEnabled) return;
 
     if (hoverAudio) {
       hoverAudio.pause();
@@ -443,13 +441,17 @@ document.querySelectorAll(".hotspot").forEach(hs => {
     document.getElementById("modalDescription").textContent = hs.dataset.description;
 
     const container = document.getElementById("modalAcousticContainer");
-    container.innerHTML = `
-      <hr>
-      <p>${hs.dataset.acousticText}</p>
-      <img src="${hs.dataset.timeseriesImg}">
-      <img src="${hs.dataset.spectrogramImg}">
-      <audio controls src="${hs.dataset.audio}"></audio>
-    `;
+    container.innerHTML = "";
+
+    if (soundEnabled && hs.dataset.modalType !== "no-sound") {
+      container.innerHTML = `
+        <hr>
+        <p>${hs.dataset.acousticText}</p>
+        <img src="${hs.dataset.timeseriesImg}">
+        <img src="${hs.dataset.spectrogramImg}">
+        <audio controls src="${hs.dataset.audio}"></audio>
+      `;
+    }
   });
 });
 
