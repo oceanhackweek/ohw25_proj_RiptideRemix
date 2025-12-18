@@ -161,23 +161,18 @@
   line-height: 1.6;
 }
 
-.audio-unlock-hint {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+.sound-toggle {
+  display: inline-block;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
-  padding: 10px 16px;
+  border: none;
   border-radius: 20px;
+  padding: 8px 14px;
   font-size: 0.9rem;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.4s ease;
+  cursor: pointer;
+  margin-bottom: 1rem;
 }
 
-.audio-unlock-hint.hidden {
-  opacity: 0;
+.sound-toggle.on {
+  background: rgba(0, 120, 255, 0.9);
 }
-
