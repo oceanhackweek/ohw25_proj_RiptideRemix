@@ -189,7 +189,7 @@ categorySelect.addEventListener('change', function() {
             console.log("Found direct files in category:", soundStructure[category]._files);
             const directOption = document.createElement('option');
             directOption.value = '_direct';
-            directOption.textContent = 'Direct Files';
+            directOption.textContent = 'Any/all';
             subcategorySelect.appendChild(directOption);
         }
     } else {
@@ -253,7 +253,7 @@ subcategorySelect.addEventListener('change', function() {
                 console.log("Found direct files in subcategory:", soundStructure[category][subcategory]._files);
                 const directOption = document.createElement('option');
                 directOption.value = '_direct';
-                directOption.textContent = 'Direct Files';
+                directOption.textContent = 'Any/all';
                 speciesSelect.appendChild(directOption);
             }
         }
