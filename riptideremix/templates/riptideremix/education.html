@@ -80,19 +80,21 @@
 
   </section>
 
+  <button id="soundToggle" class="sound-toggle">
+    🔇 Sound Off
+  </button>
   <!-- SCROLLABLE OCEAN -->
+<section class="ocean-scroll-wrapper" style="position: relative; width: 100%; overflow-x: auto;">
 
-  <div style="text-align: center; margin-bottom: 1rem;">
-    <button id="soundToggle" class="sound-toggle">
-      🔇 Sound Off
-    </button>
-  </div>
-  <section class="ocean-scroll">
+  <!-- Ocean container (relative) -->
+  <div class="ocean-container" style="position: relative; display: inline-block;">
+    <!-- Ocean track / background -->
     <div class="ocean-track">
       <img
         src="{% static 'learn_page/icons/background_wIcons.png' %}"
         class="ocean-background"
         alt="Ocean background"
+        style="display: block; margin: 0 auto;"
       />
 
       <!-- Hotspots -->
