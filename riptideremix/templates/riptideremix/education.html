@@ -101,7 +101,7 @@
         data-acoustic-text="Acoustic description" 
         data-timeseries-img="{% static 'learn_page/images/crocodilian_timeseries.jpg' %}" 
         data-spectrogram-img="{% static 'learn_page/images/crocodilian_spectrogram.jpg' %}" 
-        data-audio="{% static 'learn_page/audio/crocodilian.mp3' %}">
+        data-audio="{% static 'learn_page/audio/croc.mp3' %}">
       </div>
       <div class="hotspot" style="top:85.9%; left:0.91%; width:4.34%; height:8.11%;" 
         data-title="Chorousing Fish"
@@ -114,7 +114,7 @@
         data-acoustic-text="Acoustic description" 
         data-timeseries-img="{% static 'learn_page/images/fish_chorus_timeseries.jpg' %}" 
         data-spectrogram-img="{% static 'learn_page/images/fish_chorus_spectrogram.jpg' %}" 
-        data-audio="{% static 'learn_page/audio/fish_chorus.mp3' %}">
+        data-audio="{% static 'learn_page/audio/midshipman.mp3' %}">
       </div>
       <div class="hotspot" style="top:5.2%; left:15.4%; width:5.9%; height:33.7%;" 
         data-title="Oil Drilling" 
@@ -225,7 +225,7 @@
           data-acoustic-text="Acoustic description" 
           data-timeseries-img="{% static 'learn_page/images/earthquake_timeseries.jpg' %}" 
           data-spectrogram-img="{% static 'learn_page/images/earthquake_spectrogram.jpg' %}" 
-          data-audio="{% static 'learn_page/audio/earthquake.mp3' %}">
+          data-audio="{% static 'learn_page/audio/eq.wav' %}">
       </div>
       <div class="hotspot" style="top:13.6%; left:57.7%; width:6.6%; height:21.0%;" 
           data-title="Wind/Waves"
@@ -276,7 +276,7 @@
           data-acoustic-text="Acoustic description" 
           data-timeseries-img="{% static 'learn_page/images/orca_timeseries.jpg' %}" 
           data-spectrogram-img="{% static 'learn_page/images/orca_spectrogram.jpg' %}" 
-          data-audio="{% static 'learn_page/audio/orca.mp3' %}">
+          data-audio="{% static 'learn_page/audio/orca.wav' %}">
       </div>
       <div class="hotspot" style="top:8.9%; left:79.6%; width:7.8%; height:23.0%;" 
           data-title="Rain" 
@@ -336,99 +336,124 @@
   </section>
 
 </div>
-<!-- Modal -->
+<!-- AUDIO UNLOCK HINT -->
+<div id="audioUnlockHint" class="audio-unlock-hint">
+  🔊 Click or scroll to enable audio
+</div>
+
+<!-- MODAL -->
 <div id="infoModal" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
 
-    <!-- Header -->
     <div class="modal-header">
-      <img id="modalHeaderImg" alt="Icon image">
+      <img id="modalHeaderImg">
       <h2 id="modalTitle"></h2>
     </div>
 
-    <!-- Description -->
-    <div class="modal-section">
-      <p id="modalDescription"></p>
-    </div>
-
-    <!-- Acoustic container (dynamic) -->
+    <p id="modalDescription"></p>
     <div id="modalAcousticContainer"></div>
-
   </div>
 </div>
-
 {% endblock %}
+
 {% block extra_js %}
 <script>
-const modal = document.getElementById("infoModal");
-const closeBtn = modal.querySelector(".close");
+/* ============================
+   AUDIO UNLOCK (CLICK OR SCROLL)
+============================ */
 
-const modalHeaderImg = document.getElementById("modalHeaderImg");
-const modalTitle = document.getElementById("modalTitle");
-const modalDescription = document.getElementById("modalDescription");
-const acousticContainer = document.getElementById("modalAcousticContainer");
+let audioUnlocked = false;
+const unlockHint = document.getElementById("audioUnlockHint");
 
-// Open modal
+function unlockAudio() {
+  if (audioUnlocked) return;
+
+  audioUnlocked = true;
+
+  // Silent audio unlock
+  const silent = new Audio();
+  silent.play().catch(() => {});
+
+  // Hide hint
+  if (unlockHint) {
+    unlockHint.classList.add("hidden");
+    setTimeout(() => unlockHint.remove(), 500);
+  }
+
+  document.removeEventListener("click", unlockAudio);
+  document.removeEventListener("scroll", unlockAudio);
+}
+
+document.addEventListener("click", unlockAudio, { once: true });
+document.addEventListener("scroll", unlockAudio, { once: true });
+
+/* ============================
+   HOVER AUDIO (LOOPING)
+============================ */
+
+let hoverAudio = null;
+
 document.querySelectorAll(".hotspot").forEach(hs => {
-  hs.addEventListener("click", () => {
+  const audioSrc = hs.dataset.audio;
+  if (!audioSrc || hs.dataset.modalType === "no-sound") return;
 
-    modalTitle.textContent = hs.dataset.title;
-    modalHeaderImg.src = hs.dataset.headerImg;
-    modalDescription.textContent = hs.dataset.description;
+  hs.addEventListener("mouseenter", () => {
+    if (!audioUnlocked) return;
 
-    acousticContainer.innerHTML = ""; // reset
-
-    const type = hs.dataset.modalType;
-
-    // ---------- SINGLE SOUND ----------
-    if (type === "single-sound") {
-      acousticContainer.innerHTML = `
-        <hr>
-        <h3>Acoustic Characteristics</h3>
-        <p>${hs.dataset.acousticText}</p>
-
-        <div class="acoustic-images">
-          <img src="${hs.dataset.timeseriesImg}" alt="Timeseries">
-          <img src="${hs.dataset.spectrogramImg}" alt="Spectrogram">
-        </div>
-
-        <audio controls>
-          <source src="${hs.dataset.audio}" type="audio/mpeg">
-        </audio>
-      `;
+    if (hoverAudio) {
+      hoverAudio.pause();
+      hoverAudio.currentTime = 0;
     }
 
-    // ---------- MULTI SOUND ----------
-    if (type === "multi-sound") {
-      acousticContainer.innerHTML = `
-        <hr>
-        <h3>Representative Sounds</h3>
+    hoverAudio = new Audio(audioSrc);
+    hoverAudio.loop = true;
+    hoverAudio.volume = 0.7;
+    hoverAudio.play().catch(() => {});
+  });
 
-        <p>${hs.dataset.acousticText}</p>
-
-        <div class="acoustic-images">
-          <img src="${hs.dataset.timeseriesImg}" alt="Timeseries">
-          <img src="${hs.dataset.spectrogramImg}" alt="Spectrogram">
-        </div>
-
-        <audio controls>
-          <source src="${hs.dataset.audio}" type="audio/mpeg">
-        </audio>
-      `;
+  hs.addEventListener("mouseleave", () => {
+    if (hoverAudio) {
+      hoverAudio.pause();
+      hoverAudio.currentTime = 0;
+      hoverAudio = null;
     }
-
-    // ---------- NO SOUND ----------
-    // nothing added — title + image + description only
-
-    modal.style.display = "block";
   });
 });
 
-// Close modal
+/* ============================
+   CLICK → OPEN MODAL
+============================ */
+
+const modal = document.getElementById("infoModal");
+const closeBtn = modal.querySelector(".close");
+
+document.querySelectorAll(".hotspot").forEach(hs => {
+  hs.addEventListener("click", () => {
+
+    if (hoverAudio) {
+      hoverAudio.pause();
+      hoverAudio.currentTime = 0;
+      hoverAudio = null;
+    }
+
+    modal.style.display = "block";
+    document.getElementById("modalTitle").textContent = hs.dataset.title;
+    document.getElementById("modalHeaderImg").src = hs.dataset.headerImg;
+    document.getElementById("modalDescription").textContent = hs.dataset.description;
+
+    const container = document.getElementById("modalAcousticContainer");
+    container.innerHTML = `
+      <hr>
+      <p>${hs.dataset.acousticText}</p>
+      <img src="${hs.dataset.timeseriesImg}">
+      <img src="${hs.dataset.spectrogramImg}">
+      <audio controls src="${hs.dataset.audio}"></audio>
+    `;
+  });
+});
+
 closeBtn.onclick = () => modal.style.display = "none";
-window.onclick = e => {
-  if (e.target === modal) modal.style.display = "none";
-};
+window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
 </script>
 {% endblock %}
