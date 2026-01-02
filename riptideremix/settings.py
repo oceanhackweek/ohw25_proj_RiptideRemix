@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-kncr&vsdf=@z$=d*()*jqq727lk^8m6u=826e45au%t0k5nwy3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["riptide-remix-ac6c13c5a06d.herokuapp.com"]
+ALLOWED_HOSTS = ["riptide-remix-ac6c13c5a06d.herokuapp.com", 'localhost', '127.0.0.1']
 
 
 # Application definition
