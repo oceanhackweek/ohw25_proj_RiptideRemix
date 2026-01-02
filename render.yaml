@@ -1,7 +1,0 @@
-services:
-- type: web
-  runtime: docker
-  name: web
-  repo: https://github.com/oceanhackweek/ohw25_proj_RiptideRemix
-  domains:
-  - riptide_remix.oceanhackweek.org

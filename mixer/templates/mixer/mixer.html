@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-5 text-primary">Mixer</h2>
+    <p class="fs-5">
+        Drift through our collection and discover glaciers groaning, icebergs cracking, whales singing their hearts out,
+        and even the occasional mischievous crocodile.
+    </p>
+    <div>
+        <h3>Clip Editor</h3>
+            <p class="fs-5">
+                Each clip is yours to play with:
+            </p>
+            <ul class="fs-5">
+                <li><strong>Speed it up</strong> to make it race like a storm or slow it down to let it drift like a lazy current.</li>
+                <li><strong>Shift the frequency</strong> to soar into the skies or rumble in the deep.</li>
+                <li><strong>Adjust the amplitude</strong> to make it whisper or roar.</li>
+            </ul>
+            <p class="fs-5">
+                Experiment freely—the ocean has endless voices, and now they're in your hands.
+            </p>
+            <p class="fs-5 mb-0">
+                When you've crafted the sound just the way you like, click
+                <span class="badge bg-primary">Add to Song</span>
+                to weave it into your grand ocean symphony.
+            </p>
+        </div>
+    </div>
+    <div class="card p-3 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <label for="clipSelect" class="form-label fw-bold">Choose a clip:</label>
+                <select id="clipSelect" class="form-select">
+                    <option value="glacier">Glacier Ice Cracking</option>
+                    <option value="iceberg">Iceberg Melting</option>
+                    <option value="orca">Orca Whale Calls</option>
+                    <option value="crocodile">Crocodile Vocalizations</option>
+                </select>
+            </div>
+            <div class="col-md-8">
+                <button id="playClip" class="btn btn-primary me-2">Preview</button>
+                <button id="addToMix" class="btn btn-success">Add to Mix</button>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Controls -->
+        <div class="row">
+            <div class="col-md-3">
+                <label class="form-label">Speed</label>
+                <input type="range" id="speed" class="form-range" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Pitch</label>
+                <input type="range" id="frequency" class="form-range" min="-12" max="12" step="1" value="0">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Amplitude</label>
+                <input type="range" id="amplitude" class="form-range" min="0" max="2" step="0.1" value="1">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Loops</label>
+                <input type="number" id="loops" class="form-control" min="1" max="10" value="1">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home | Riptide Remix{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+  <!-- WRAPPER: Welcome + Carousel -->
+  <div id="welcomeSection">
+
+    <!-- 1. Welcome Card -->
+    <div class="text-center p-5 bg-light rounded shadow-sm mb-5">
+      <h1 class="mb-4">Discover the Ocean Through Sound</h1>
+      <p class="lead mb-4">
+        The ocean is full of noise, from whale songs and fish choruses to waves, wind, and human activity.
+        <strong>Riptide Remix</strong> lets you explore, layer, and manipulate these recordings to hear the underwater world as marine life does.
+      </p>
+      <div class="d-flex justify-content-center gap-3">
+        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#welcomeModal">
+          First Time
+        </button>
+        <a href="{% url 'mixer' %}" class="btn btn-outline-primary btn-lg">
+          Experienced Mixer
+        </a>
+      </div>
+    </div>
+
+    <!-- 2. Modal for First-Time Users -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p>
+              In the ocean, thousands of noises occur every day, coming together to form a rich and complex soundscape.
+              Whales sing and click, fish chorus in search of mates, humans add noise through boats and machinery,
+              and earthquakes, wind, and waves fill the water with a wide spectrum of natural sound.
+            </p>
+            <p>
+              At <strong>Riptide Remix</strong>, you can explore this ocean soundscape in detail.
+              Select different acoustic sources and analyze them however you like.
+              Adjust their speed, change their amplitude, and layer them to hear how marine life experiences
+              the underwater world every day.
+            </p>
+            <p>
+              Try imagining you’re a baleen whale calling for a mate. Does your signal make it to your intended partner as you add additional noises? <br>
+              Now, try imagining you’re a DJ. How can you mix the sound to make the best beat? <br><br>
+              No matter how you interact, we hope Riptide Remix is a space to discover, experiment, and learn about the ocean through sound.
+            </p>
+
+            <hr>
+
+            <!-- Clippy Inline -->
+            <div class="text-center mt-3">
+              <p>
+                Our friend <strong>Clippy</strong>
+                <img src="{% static 'Images/Clippy/base.png' %}" alt="Clippy Small" style="height:40px; width:auto; vertical-align:middle; margin:0 5px;">
+                is here to help you learn. <br>
+                Click him at any time for detailed explanations of the acoustic controls and the science behind the sounds you’re exploring.
+              </p>
+              <p>Click Clippy when you're ready to start your first mix!</p>
+              <img
+                src="{% static 'Images/Clippy/ready.png' %}"
+                id="clippyClose"
+                alt="Clippy Helper"
+                style="height:120px; width:auto; cursor:pointer;"
+                data-url="{% url 'mixer' %}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Multi-Item Carousel -->
+    <h3 class="mb-3">Latest Riptide Originals</h3>
+    <div id="songsCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        {% for i in "123456789" %}
+          {% if forloop.first or forloop.counter0|divisibleby:5 %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="d-flex justify-content-center gap-3">
+          {% endif %}
+
+              <div class="text-center" style="flex: 1 1 0;">
+                <a href="{% static 'Songs/my_final_song.wav' %}" target="_blank">
+                  <img src="{% static 'Images/Carousel/'|add:i|add:'.jpg' %}"
+                       class="d-block mb-2 mx-auto"
+                       style="height:120px; width:auto;"
+                       alt="Song {{ i }}">
+                  <h6 class="mt-2">Cool Song {{ i }}</h6>
+                  <small class="text-muted">by Author {{ i }}</small>
+                </a>
+              </div>
+
+          {% if forloop.counter|divisibleby:5 or forloop.last %}
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#songsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#songsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+  </div> <!-- END welcomeSection -->
+
+  <!-- 4. Mixer App Section -->
+  <div id="appsSection" class="text-center my-5" style="display:none;">
+    <h2>Mixer Section (Coming Soon)</h2>
+    <p class="text-muted">This is where the mixer will appear.</p>
+    <!-- Embed your notebook/mixer app here -->
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const clippy = document.getElementById("clippyClose");
+  const welcomeModal = document.getElementById("welcomeModal");
+  const modal = bootstrap.Modal.getOrCreateInstance(welcomeModal);
+  const welcomeSection = document.getElementById("welcomeSection");
+  const appsSection = document.getElementById("appsSection");
+
+  // Clippy closes modal and launches mixer
+  clippy.addEventListener("click", function () {
+  window.location.href = clippy.dataset.url;
+  });
+
+  // Experienced Mixer: skip modal, show mixer
+  const experiencedBtn = document.getElementById("experiencedBtn");
+  experiencedBtn.addEventListener("click", function () {
+    welcomeSection.style.display = "none";
+    appsSection.style.display = "block";
+  });
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Make carousel arrows larger and more visible */
+#songsCarousel .carousel-control-prev,
+#songsCarousel .carousel-control-next {
+    width: 5%;
+    font-size: 2rem;
+}
+
+#songsCarousel .carousel-control-prev-icon,
+#songsCarousel .carousel-control-next-icon {
+    background-color: rgba(2, 20, 39, 0.8);
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+}
+
+#songsCarousel .carousel-control-prev-icon:hover,
+#songsCarousel .carousel-control-next-icon:hover {
+    background-color: rgb(0, 25, 52);
+}
+</style>
+{% endblock %}

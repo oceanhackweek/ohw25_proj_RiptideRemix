@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Marine Sounds | Riptide Remix{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'learn_page/css/learn.css' %}">
+<style>
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <!-- HEADER -->
+    <section class="intro">
+        <h1>The Ocean Soundscape</h1>
+        <hr style="margin: 1rem 0; border-top: 1px solid #0a0a0a;">
+
+        <p>
+            Sound is the ocean’s invisible language. It carries essential information about the behavior of marine animals,
+            the dynamics of natural events, and countless other underwater processes. Read more below about different oceanic sounds
+            and how researchers use them in their work.
+        </p>
+
+        <!-- Three Columns -->
+        <div class="intro-columns">
+            <div class="section-column bio">
+                <h2>BIOLOGICAL</h2>
+                <p>
+                    Many marine animal species rely on sound to navigate, find food,
+                    and communicate with each other, especially in environments where visibility is limited.
+                    By studying their vocalizations and acoustic behaviors, scientists can learn about migration routes, mating strategies, and social interactions.
+                    Understanding these patterns not only helps us uncover the lives of these animals but also guides efforts to protect them from threats like
+                    habitat disruption and human-made noise.
+                </p>
+            </div>
+
+            <div class="section-column anthro">
+                <h2>ANTHROPOGENIC</h2>
+                <p>
+                    Humans add a lot of extra noise to the ocean,
+                    and it’s changing how marine animals live. Imagine living next to a train station with
+                    trains passing by every minute of every single day. That’s what it’s like for some ocean creatures.
+                    Boats, construction, sonar, and aircraft create loud sounds that can travel for miles, sometimes drowning
+                    out the calls of whales, fish, and other marine life. By studying these human-made noises, scientists
+                    can suggest ways to reduce their impact, helping both people and marine animals share the ocean more peacefully.
+                </p>
+            </div>
+
+            <div class="section-column env">
+                <h2>ENVIRONMENTAL</h2>
+                <p>
+                    Earthquakes, waves, wind, and ocean currents constantly generate acoustic energy in the marine environment.
+                    These sounds provide important context for marine life, influencing how animals communicate, navigate, and detect predators or prey.
+                    By studying environmental noise, scientists can also monitor natural events, understand ocean dynamics, and assess how human activity may impact ocean acoustics.
+                </p>
+            </div>
+        </div>
+
+        <!-- Clippy section -->
+        <div class="d-flex align-items-start mt-3 gap-3">
+            <img src="{% static 'Images/Clippy/base.png' %}"
+                 id="clippyClose"
+                 alt="Clippy Helper"
+                 style="height:30px; width:auto; cursor:pointer; flex-shrink:0;"
+                 data-url="{% url 'mixer' %}">
+            <div>
+                <p>
+                    Scroll theough the image below to see many of the acoustic signals that are of importance in the
+                    oceanic soundscape. If there's one that interests you, click on it to
+                    learn more and hear a sample of the sound.
+                </p>
+            </div>
+        </div>
+
+        <hr style="margin: 1rem 0; border-top: 1px solid #0a0a0a;">
+
+    </section>
+
+    <!-- SCROLLABLE OCEAN -->
+    <section class="ocean-scroll-wrapper" style="position: relative; width: 100%; overflow-x: auto; height: 400px;">
+        <!-- Ocean container (relative) -->
+        <div class="ocean-container" style="position: relative; display: inline-block;">
+            <!-- Ocean track / background -->
+            <div class="ocean-track" style="position: relative;">
+                <img src="{% static 'learn_page/icons/background_wIcons.png' %}"
+                     class="ocean-background"
+                     alt="Ocean background"
+                     style="display: block; margin: 0 auto;" />
+
+                <!-- Hotspots -->
+                <div class="hotspot" style="top:15.9%; left:3.8%; width:8.7%; height:10.7%;"
+                     data-title="Crocodilian"
+                     data-infocard="{% static 'learn_page/infocards/croc.png' %}"
+                     data-audio="{% static 'learn_page/audio/croc.mp3' %}"
+                     data-infocard-audio="{% static 'learn_page/infocards/ifc_audio/croc_a.mp3' %},{% static 'learn_page/infocards/ifc_audio/croc_b.mp3' %},{% static 'learn_page/infocards/ifc_audio/croc_c.mp3' %},{% static 'learn_page/infocards/ifc_audio/croc_d.mp3' %},{% static 'learn_page/infocards/ifc_audio/croc_e.mp3' %},{% static 'learn_page/infocards/ifc_audio/croc_f.mp3' %}">
+                </div>
+                <div class="hotspot" style="top:85.9%; left:0.91%; width:4.34%; height:8.11%;"
+                     data-title="Chorousing Fish"
+                     data-infocard="{% static 'learn_page/infocards/chorus.png' %}"
+                     data-audio="{% static 'learn_page/audio/midshipman.mp3' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:5.2%; left:15.4%; width:5.9%; height:33.7%;"
+                     data-title="Oil Drilling"
+                     data-infocard="{% static 'learn_page/infocards/oil.png' %}"
+                     data-audio="{% static 'learn_page/audio/seismic.mp3' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:54.0%; left:23.5%; width:2%; height:10%;"
+                     data-title="Invertebrates"
+                     data-audio="{% static 'learn_page/audio/shrimp.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/invert.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:60.8%; left:7.2%; width:4.6%; height:14.1%;"
+                     data-title="Reef Fish"
+                     data-audio="{% static 'learn_page/audio/fish.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/reef.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:74.4%; left:17.8%; width:5.7%; height:16.1%;"
+                     data-title="Humpback Whale"
+                     data-audio="{% static 'learn_page/audio/humpback.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/humpback.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:69.2%; left:26.6%; width:9.5%; height:16.4%;"
+                     data-title="Mysticete"
+                     data-audio="{% static 'learn_page/audio/mysticete.wav' %}"
+                     data-infocard="{% static 'learn_page/infocards/myst.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:22.2%; left:25.5%; width:6.5%; height:15.2%;"
+                     data-title="Fishfinders and Echosounders"
+                     data-audio="{% static 'learn_page/audio/echosounder.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/fathom.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:5.2%; left:33.0%; width:12.2%; height:34.2%;"
+                     data-title="Storms and Weather Events"
+                     data-audio="{% static 'learn_page/audio/thunder.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/weather.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:77.5%; left:54.9%; width:1.8%; height:12.3%;"
+                     data-title="Ocean Bottom Seismometer"
+                     data-audio=""
+                     data-infocard="{% static 'learn_page/infocards/obs.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:62.4%; left:38.9%; width:2.4%; height:32.1%;"
+                     data-title="Passive Hydrophone Mooring"
+                     data-audio=""
+                     data-infocard="{% static 'learn_page/infocards/HARP.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:48.3%; left:46.1%; width:10.2%; height:17.6%;"
+                     data-title="Sonar"
+                     data-audio="{% static 'learn_page/audio/sonar.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/sonar.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:81.7%; left:46.6%; width:1.6%; height:16.3%;"
+                     data-title="Earthquake"
+                     data-audio="{% static 'learn_page/audio/eq.wav' %}"
+                     data-infocard="{% static 'learn_page/infocards/eq.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:13.6%; left:60.7%; width:6.6%; height:21.0%;"
+                     data-title="Wind/Waves"
+                     data-audio="{% static 'learn_page/audio/waves.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/waves.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:65.8%; left:62.1%; width:6.4%; height:18.8%;"
+                     data-title="Odontocete"
+                     data-audio="{% static 'learn_page/audio/dolphin.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/dolphin.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:5.0%; left:71.1%; width:3.3%; height:37.4%;"
+                     data-title="Windfarm"
+                     data-audio="{% static 'learn_page/audio/windfarm.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/windfarm.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:61.4%; left:74.7%; width:7.1%; height:24.3%;"
+                     data-title="Orca"
+                     data-audio="{% static 'learn_page/audio/orca.wav' %}"
+                     data-infocard="{% static 'learn_page/infocards/orca.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:8.9%; left:79.6%; width:7.8%; height:23.0%;"
+                     data-title="Rain"
+                     data-audio="{% static 'learn_page/audio/rain.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/rain.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:49.3%; left:83.6%; width:7.5%; height:13.1%;"
+                     data-title="Beluga"
+                     data-audio="{% static 'learn_page/audio/beluga.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/beluga.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:45.4%; left:93.7%; width:2.9%; height:12.8%;"
+                     data-title="Walrus"
+                     data-audio="{% static 'learn_page/audio/walrus.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/walrus.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:11.0%; left:95.3%; width:3.9%; height:18.3%;"
+                     data-title="Pinniped"
+                     data-audio="{% static 'learn_page/audio/sealion.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/invert.png' %}"
+                     data-infocard-audio="">
+                </div>
+                <div class="hotspot" style="top:19.5%; left:43.5%; width:15.4%; height:18.1%;"
+                     data-title="Shipping"
+                     data-audio="{% static 'learn_page/audio/cargo.mp3' %}"
+                     data-infocard="{% static 'learn_page/infocards/invert.png' %}"
+                     data-infocard-audio="">
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Sound toggle button stays at bottom of scroll wrapper -->
+    <button id="soundToggle" class="sound-toggle" style="
+        position: absolute;
+        bottom: -200px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    ">
+        🔇 Sound Off
+    </button>
+</div>
+
+    <!-- MODAL -->
+<div id="infoModal" class="infocard-modal">
+    <div class="infocard-modal-content">
+        <span class="close">&times;</span>
+
+        <img id="modalInfocard" src="">
+
+        <div id="modalAudioButtons" class="audio-sidebar"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* ============================
+        GLOBAL SOUND STATE
+    ============================ */
+
+    let soundEnabled = false;
+    let hoverAudio = null;
+
+    const toggleBtn = document.getElementById("soundToggle");
+
+    /* ============================
+        TOGGLE SOUND ON / OFF
+    ============================ */
+
+    toggleBtn.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+
+        toggleBtn.textContent = soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
+        toggleBtn.classList.toggle("on", soundEnabled);
+
+        // Stop all audio immediately when turning OFF
+        if (!soundEnabled && hoverAudio) {
+            hoverAudio.pause();
+            hoverAudio.currentTime = 0;
+            hoverAudio = null;
+        }
+    });
+
+    /* ============================
+        HOVER AUDIO (OPTIONAL)
+    ============================ */
+
+    document.querySelectorAll(".hotspot").forEach(hs => {
+        const audioSrc = hs.dataset.audio;
+        if (!audioSrc) return;
+
+        hs.addEventListener("mouseenter", () => {
+            if (!soundEnabled) return;
+            if (hoverAudio) { hoverAudio.pause(); hoverAudio.currentTime = 0; }
+            hoverAudio = new Audio(audioSrc);
+            hoverAudio.loop = true;
+            hoverAudio.volume = 0.7;
+            hoverAudio.play().catch(() => { });
+        });
+
+        hs.addEventListener("mouseleave", () => {
+            if (hoverAudio) { hoverAudio.pause(); hoverAudio.currentTime = 0; hoverAudio = null; }
+        });
+    });
+
+    /* ============================
+        CLICK → OPEN INFOCARD MODAL
+    ============================ */
+
+    const modal = document.getElementById("infoModal");
+    const modalImg = document.getElementById("modalInfocard");
+    const closeBtn = modal.querySelector(".close");
+
+    document.querySelectorAll(".hotspot").forEach(hs => {
+        hs.addEventListener("click", () => {
+            const imgSrc = hs.dataset.infocard;
+            if (imgSrc) modalImg.src = imgSrc;
+
+            const audioSidebar = document.getElementById("modalAudioButtons");
+            audioSidebar.innerHTML = "";
+
+            let audios = [];
+            if (hs.dataset.infocardAudio) {
+                audios = hs.dataset.infocardAudio.split(",");
+            } else if (hs.dataset.audio) {
+                audios = [hs.dataset.audio];
+            }
+
+            // Labels: (a), (b), (c) ...
+            const alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+            audios.forEach((src, index) => {
+                const btn = document.createElement("button");
+                const label = `(${alphabet[index] || index + 1})`;
+                btn.textContent = `▶️ ${label}`;
+                btn.style.fontSize = "0.9rem";
+                btn.style.padding = "5px 10px";
+                btn.style.cursor = "pointer";
+
+                const audio = new Audio(src);
+
+                btn.addEventListener("click", () => {
+                    // Pause other audios
+                    document.querySelectorAll("#modalAudioButtons audio").forEach(a => {
+                        a.pause();
+                        a.currentTime = 0;
+                    });
+                    audio.play();
+                });
+
+                audioSidebar.appendChild(btn);
+                audioSidebar.appendChild(audio); // hidden audio element
+            });
+
+            modal.classList.add("is-open");
+            document.body.style.overflow = "hidden";
+        });
+    });
+
+    closeBtn.addEventListener("click", () => {
+        modal.classList.remove("is-open");
+        modalImg.src = "";
+        document.body.style.overflow = "";
+    });
+
+    modal.addEventListener("click", e => {
+        if (e.target === modal) {
+            modal.classList.remove("is-open");
+            modalImg.src = "";
+            document.body.style.overflow = "";
+        }
+    });
+
+    /* ============================
+        CLOSE MODAL
+    ============================ */
+
+    closeBtn.onclick = () => modal.style.display = "none";
+    window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+</script>
+{% endblock %}
