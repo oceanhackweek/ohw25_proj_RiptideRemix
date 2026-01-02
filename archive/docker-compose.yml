@@ -1,6 +1,0 @@
-services:
-  app:
-    build: .
-    platform: linux/amd64
-    ports:
-      - "10000:10000"
