@@ -5,20 +5,6 @@
 <div class="container my-5">
     <h2 class="text-center mb-5 text-primary">Mixer</h2>
 
-    <!-- Debug Section (temporary) -->
-    <div class="card mb-4">
-        <div class="card-header bg-warning">
-            <h5 class="mb-0">Debug: Check JSON</h5>
-        </div>
-        <div class="card-body">
-            <p><strong>Sound structure type:</strong> {{ sound_structure|default:"None"|length }}</p>
-            <p><strong>JSON length:</strong> {{ sound_structure_json|length }}</p>
-            <p><strong>First 100 chars of JSON:</strong> {{ sound_structure_json|slice:":100" }}</p>
-            <button class="btn btn-sm btn-info" onclick="checkJSON()">Check JSON in Console</button>
-        </div>
-    </div>
-
-
     <p class="fs-5">
         Drift through our collection and discover glaciers groaning, icebergs cracking, whales singing their hearts out,
         and even the occasional mischievous crocodile.
