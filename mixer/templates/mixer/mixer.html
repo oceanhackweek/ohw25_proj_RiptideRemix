@@ -12,18 +12,18 @@
     <div>
         <h3>Clip Editor</h3>
             <p class="fs-5">
-                Each clip is yours to play with:
+                Modify each clip to your liking using the controls below:
             </p>
             <ul class="fs-5">
-                <li><strong>Speed it up</strong> to make it race like a storm or slow it down to let it drift like a lazy current.</li>
-                <li><strong>Shift the frequency</strong> to soar into the skies or rumble in the deep.</li>
-                <li><strong>Adjust the amplitude</strong> to make it whisper or roar.</li>
+                <li><strong>Speed it up</strong> or slow it down. This might alter the frequency content! Head over to the Learn More tab to discover why this is.</li>
+                <li><strong>Shift the frequency</strong> to alter the pitch of the sound.</li>
+                <li><strong>Adjust the amplitude</strong> of the sound. Think of this like asking the whales to whisper or yell.</li>
             </ul>
             <p class="fs-5">
-                Experiment freely—the ocean has endless voices, and now they're in your hands.
+                Experiment freely! The ocean has endless voices, and now they're in your hands.
             </p>
             <p class="fs-5 mb-0">
-                When you've crafted the sound just the way you like, click
+                When you've created the sound just how you like, click
                 <span class="badge bg-primary">Add to Song</span>
                 to weave it into your grand ocean symphony.
             </p>
@@ -75,24 +75,28 @@
 
         <!-- Controls -->
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label">Speed</label>
                 <input type="range" id="speed" class="form-range" min="0.2" max="4" step="0.1" value="1">
                 <div class="small text-muted" id="speedValue">1.0x</div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Pitch</label>
-                <input type="range" id="frequency" class="form-range" min="-12" max="12" step="1" value="0">
-                <div class="small text-muted" id="pitchValue">0 semitones</div>
+            <div class="col-md-2">
+                <label class="form-label">Pitch (change in 100 Hz)</label>
+                <input type="range" id="frequency" class="form-range" min="-2000" max="2000" step="100" value="0">
+                <div class="small text-muted" id="pitchValue">0 Hz</div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label">Amplitude</label>
                 <input type="range" id="amplitude" class="form-range" min="0" max="5" step="0.1" value="1">
                 <div class="small text-muted" id="amplitudeValue">1.0x</div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label">Loops</label>
                 <input type="number" id="loops" class="form-control" min="1" max="10" value="1">
+            </div>
+            <div class="col-md-2">
+                <button id="resetBtn" class="btn btn-outline-secondary w-100">
+                    <i class="btn btn-success w-50"></i> Reset to Original </button>
             </div>
         </div>
     </div>
@@ -100,8 +104,8 @@
     <!-- Spectrogram Display -->
     <div class="card p-3 mb-4">
         <div class="card-header bg-light">
-            <h4 class="mb-0">Spectrogram</h4>
-            <p class="text-muted mb-0 small">Visual representation of you audio file</p>
+            <h4 class="mb-0">Your selected clip as a 'spectrogram'</h4>
+            <p class="text-muted mb-0 small">A visual representation of the clip you might like to add to your song.</p>
         </div>
         <div class="card-body">
             <div id="spectrogramLoading" class="text-center" style="display: none;">
@@ -129,6 +133,276 @@
 
 {% block extra_js %}
 <script>
+// Original values for controls
+const originalSpeed = 1.0;
+const originalPitch = 0; // Hz shift (0 means no pitch shift)
+const originalAmplitude = 1.0;
+const originalLoops = 1;
+
+// Web Audio API variables
+let audioContext = null;
+let sourceNode = null;
+let gainNode = null;
+let audioBuffer = null;
+let isPlaying = false;
+let currentAudioUrl = null;
+
+// Get DOM elements for controls
+const speedControl = document.getElementById('speed');
+const pitchControl = document.getElementById('frequency');
+const amplitudeControl = document.getElementById('amplitude');
+const loopsControl = document.getElementById('loops');
+const resetBtn = document.getElementById('resetBtn');
+
+// Control value displays
+const speedValue = document.getElementById('speedValue');
+const pitchValue = document.getElementById('pitchValue');
+const amplitudeValue = document.getElementById('amplitudeValue');
+
+// Function to initialize Web Audio API
+function initAudioContext() {
+    if (!audioContext) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('AudioContext initialized');
+        } catch (error) {
+            console.error('Error initializing AudioContext:', error);
+            return false;
+        }
+    }
+    return true;
+}
+
+// Function to stop current playback
+function stopPlayback() {
+    if (sourceNode) {
+        try {
+            sourceNode.stop();
+        } catch (e) {
+            // Node might already be stopped
+        }
+        sourceNode = null;
+    }
+    isPlaying = false;
+}
+
+// Function to play audio with independent speed and pitch control
+async function playAudioWithWebAudio(url) {
+    try {
+        // Initialize audio context if needed
+        if (!initAudioContext()) {
+            throw new Error('Could not initialize audio context');
+        }
+        
+        // Stop any current playback
+        stopPlayback();
+        
+        // Load audio file
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        
+        // Create audio nodes
+        sourceNode = audioContext.createBufferSource();
+        gainNode = audioContext.createGain();
+        
+        // Set up audio buffer
+        sourceNode.buffer = audioBuffer;
+        
+        // Connect nodes: source -> gain -> destination
+        sourceNode.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Apply current control settings
+        updateAudioSettings();
+        
+        // Start playback
+        sourceNode.start();
+        isPlaying = true;
+        currentAudioUrl = url;
+        
+        // Handle looping
+        const loops = parseInt(loopsControl.value);
+        if (loops > 1) {
+            sourceNode.onended = function() {
+                // For multiple loops, we'd need to recreate and restart
+                console.log('Audio ended, would loop if implemented');
+            };
+        } else {
+            sourceNode.onended = function() {
+                isPlaying = false;
+            };
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error playing audio with Web Audio API:', error);
+        // Fallback to HTML5 audio if Web Audio fails
+        return playWithHTML5Fallback(url);
+    }
+}
+
+// Fallback function using HTML5 audio
+function playWithHTML5Fallback(url) {
+    const audioPlayer = document.getElementById('audioPlayer');
+    audioPlayer.src = url;
+    audioPlayer.volume = parseFloat(amplitudeControl.value);
+    
+    // With HTML5 audio, we need to convert Hz shift to playback rate
+    // A pitch shift of X Hz means we need to multiply frequency by (f + X)/f
+    // But we don't know the original frequency, so we approximate
+    // This is a simplified approach
+    const speed = parseFloat(speedControl.value);
+    const pitchShiftHz = parseFloat(pitchControl.value);
+    // For fallback, assume original frequency is 440Hz for calculation
+    const playbackRateChange = 1 + (pitchShiftHz / 440);
+    audioPlayer.playbackRate = speed * playbackRateChange;
+    
+    return audioPlayer.play().then(() => {
+        console.log('Playing with HTML5 audio fallback');
+        return true;
+    }).catch(error => {
+        console.error('HTML5 audio playback error:', error);
+        alert('Error playing audio: ' + error.message);
+        return false;
+    });
+}
+
+// Function to update audio settings in real-time
+function updateAudioSettings() {
+    if (!isPlaying || !sourceNode || !gainNode) {
+        return;
+    }
+    
+    // Update speed (playback rate) - this changes speed without affecting pitch
+    sourceNode.playbackRate.value = parseFloat(speedControl.value);
+    
+    // Update pitch shift in Hz using detune
+    // We need to convert Hz shift to cents (100 cents = 1 semitone)
+    // First, convert Hz shift to frequency ratio, then to cents
+    const pitchShiftHz = parseFloat(pitchControl.value);
+    // If no pitch shift, detune = 0
+    if (pitchShiftHz === 0) {
+        sourceNode.detune.value = 0;
+    } else {
+        // Convert Hz shift to cents: cents = 1200 * log2(1 + pitchShiftHz/refFreq)
+        // We need a reference frequency - using 440Hz (A4) as standard
+        const referenceFrequency = 440; // Hz
+        const frequencyRatio = 1 + (pitchShiftHz / referenceFrequency);
+        const cents = 1200 * Math.log2(frequencyRatio);
+        sourceNode.detune.value = cents;
+    }
+    
+    // Update amplitude (volume)
+    gainNode.gain.value = parseFloat(amplitudeControl.value);
+}
+
+// Function to check if any control has changed from original
+function checkIfControlsChanged() {
+    const currentSpeed = parseFloat(speedControl.value);
+    const currentPitch = parseFloat(pitchControl.value);
+    const currentAmp = parseFloat(amplitudeControl.value);
+    const currentLoops = parseInt(loopsControl.value);
+    
+    return currentSpeed !== originalSpeed ||
+           currentPitch !== originalPitch ||
+           currentAmp !== originalAmplitude ||
+           currentLoops !== originalLoops;
+}
+
+// Function to update reset button appearance
+function updateResetButton() {
+    if (checkIfControlsChanged()) {
+        // Light up the button - change to orange/yellow warning color
+        resetBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Reset Changes';
+        resetBtn.classList.remove('btn-outline-secondary', 'btn-success', 'btn-info');
+        resetBtn.classList.add('btn-warning');
+    } else {
+        // Return to normal state
+        resetBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Reset to Original';
+        resetBtn.classList.remove('btn-warning', 'btn-success', 'btn-info');
+        resetBtn.classList.add('btn-outline-secondary');
+    }
+}
+
+// Function to reset all controls to original values
+function resetControls() {
+    speedControl.value = originalSpeed;
+    pitchControl.value = originalPitch;
+    amplitudeControl.value = originalAmplitude;
+    loopsControl.value = originalLoops;
+    
+    // Update display values
+    speedValue.textContent = originalSpeed + 'x';
+    pitchValue.textContent = originalPitch + ' Hz';
+    amplitudeValue.textContent = originalAmplitude + 'x';
+    
+    // Update audio settings if playing
+    if (isPlaying) {
+        updateAudioSettings();
+    }
+    
+    updateResetButton(); // Update button appearance after reset
+}
+
+// Add event listeners to all controls to update reset button
+document.addEventListener('DOMContentLoaded', function() {
+    // Update reset button initially
+    updateResetButton();
+    
+    // Add event listeners to all controls
+    [speedControl, pitchControl, amplitudeControl, loopsControl].forEach(control => {
+        if (control) {
+            control.addEventListener('input', function() {
+                updateResetButton();
+                // Update audio in real-time if playing
+                if (isPlaying) {
+                    updateAudioSettings();
+                }
+            });
+            control.addEventListener('change', updateResetButton);
+        }
+    });
+});
+
+// Add reset button functionality
+resetBtn.addEventListener('click', function() {
+    // Check if any control has actually changed
+    const controlsChanged = checkIfControlsChanged();
+    
+    if (controlsChanged) {
+        resetControls();
+        
+        // If spectrogram is displayed, update it with reset values
+        const selectedSound = soundSelect.value;
+        if (selectedSound) {
+            const hasSpectrogram = spectrogramContainer.querySelector('img');
+            if (hasSpectrogram) {
+                loadSpectrogram(selectedSound);
+            }
+        }
+        
+        // Show success feedback
+        const originalBtn = this;
+        originalBtn.innerHTML = '<i class="bi bi-check"></i> Reset!';
+        originalBtn.classList.remove('btn-warning', 'btn-outline-secondary');
+        originalBtn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            updateResetButton(); // This will set the button back to appropriate state
+        }, 1000);
+    } else {
+        // No changes to reset, show different feedback
+        const originalBtn = this;
+        originalBtn.innerHTML = '<i class="bi bi-check-circle"></i> Already Reset';
+        originalBtn.classList.remove('btn-warning', 'btn-outline-secondary');
+        originalBtn.classList.add('btn-info');
+        
+        setTimeout(() => {
+            updateResetButton(); // This will set the button back to appropriate state
+        }, 800);
+    }
+});
 
 // Get sound structure from json_script tag
 const soundStructureElement = document.getElementById('sound-structure-data');
@@ -151,10 +425,6 @@ if (soundStructureElement && soundStructureElement.textContent) {
     }
 } else {
     console.error("No sound structure data found");
-    console.log("Available elements with 'sound' in id:");
-    document.querySelectorAll('[id*="sound"]').forEach(el => {
-        console.log(`- ${el.id}: ${el.tagName}`);
-    });
 }
 
 // DOM Elements
@@ -163,20 +433,10 @@ const subcategorySelect = document.getElementById('subcategorySelect');
 const speciesSelect = document.getElementById('speciesSelect');
 const soundSelect = document.getElementById('soundSelect');
 const playButton = document.getElementById('playClip');
-const audioPlayer = document.getElementById('audioPlayer');
 
 // Spectrogram elements
 const spectrogramLoading = document.getElementById('spectrogramLoading');
 const spectrogramContainer = document.getElementById('spectrogramContainer');
-
-// Control elements
-const speedControl = document.getElementById('speed');
-const pitchControl = document.getElementById('frequency');
-const amplitudeControl = document.getElementById('amplitude');
-const loopsControl = document.getElementById('loops');
-const speedValue = document.getElementById('speedValue');
-const pitchValue = document.getElementById('pitchValue');
-const amplitudeValue = document.getElementById('amplitudeValue');
 
 // Update control value displays
 if (speedControl && speedValue) {
@@ -187,7 +447,7 @@ if (speedControl && speedValue) {
 
 if (pitchControl && pitchValue) {
     pitchControl.addEventListener('input', function() {
-        pitchValue.textContent = this.value + ' semitones';
+        pitchValue.textContent = this.value + ' Hz';
     });
 }
 
@@ -360,7 +620,7 @@ async function loadSpectrogram(audioUrl) {
 
     // Get current control values
     const speed = parseFloat(speedControl.value);
-    const pitch = parseFloat(pitchControl.value);
+    const pitch = parseFloat(pitchControl.value); // Now in Hz
     const amplitude = parseFloat(amplitudeControl.value);
 
     try {
@@ -406,7 +666,7 @@ async function loadSpectrogram(audioUrl) {
     }
 }
 
-// Modified play button click handler
+// Play button event - using Web Audio API
 playButton.addEventListener('click', async function() {
     const selectedSound = soundSelect.value;
 
@@ -415,36 +675,19 @@ playButton.addEventListener('click', async function() {
         return;
     }
 
-    // Play the audio
-    audioPlayer.src = selectedSound;
-    audioPlayer.playbackRate = parseFloat(speedControl.value);
-    audioPlayer.volume = parseFloat(amplitudeControl.value);
-    audioPlayer.playbackRate = parseFloat(speedControl.value) * Math.pow(2, parseFloat(pitchControl.value) / 12);
-
-    // Play the audio
-    audioPlayer.play().catch(e => {
-        console.error('Error playing audio:', e);
-        alert('Error playing audio: ' + e.message);
-    });
-
-    // Handle looping
-    const loops = parseInt(loopsControl.value);
-    if (loops > 1) {
-        let playCount = 0;
-        audioPlayer.onended = function() {
-            playCount++;
-            if (playCount < loops) {
-                audioPlayer.currentTime = 0;
-                audioPlayer.play();
-            }
-        };
+    // Stop any current playback
+    stopPlayback();
+    
+    // Try to play with Web Audio API for independent controls
+    const success = await playAudioWithWebAudio(selectedSound);
+    
+    if (success) {
+        // Load spectrogram
+        await loadSpectrogram(selectedSound);
     }
-
-    // Load spectrogram
-    await loadSpectrogram(selectedSound);
 });
 
-// Update spectrogram when controls change (optional)
+// Update spectrogram when controls change
 [speedControl, pitchControl, amplitudeControl].forEach(control => {
     control.addEventListener('change', async function() {
         const selectedSound = soundSelect.value;
@@ -454,5 +697,12 @@ playButton.addEventListener('click', async function() {
         }
     });
 });
+
+// Initialize audio context on user interaction (browser requirement)
+document.addEventListener('click', function() {
+    if (!audioContext) {
+        initAudioContext();
+    }
+}, { once: true });
 </script>
 {% endblock extra_js %}
