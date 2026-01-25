@@ -1,11 +1,16 @@
 # mixer/views.py
-from django.shortcuts import render
-from django.views.generic import TemplateView
-from django.http import JsonResponse
 import os
 import json
-from django.conf import settings
+import logging
 import traceback
+
+from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.generic import TemplateView
+
+logger = logging.getLogger(__name__)
+
 
 # Import spectrogram utilities
 try:
@@ -14,6 +19,7 @@ try:
     SPECTROGRAM_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Could not import spectrogram utilities: {e}")
+    logger.debug(f"Warning: Could not import spectrogram utilities: {e}")
     SPECTROGRAM_AVAILABLE = False
     # Define placeholder functions
     def generate_spectrogram_util(audio_path, speed, pitch, amplitude):
@@ -53,6 +59,7 @@ class MixerView(TemplateView):
 
         if not sounds_path:
             print("ERROR: Could not find sounds directory!")
+            logger.debug("Could not find sounds directory!")
             return
 
         sound_structure = {}
@@ -70,7 +77,7 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error loading sound structure: {e}")
-            import traceback
+            logger.error(f"Error loading sound structure: {e}")
             traceback.print_exc()
 
         return sound_structure
@@ -95,6 +102,7 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error processing category {category_name}: {e}")
+            logging.error(f"Error processing category {category_name}: {e}")
 
     def process_subcategory(self, category_name, subcategory_name, subcategory_path, sound_structure):
         try:
@@ -115,6 +123,7 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error processing subcategory {subcategory_name}: {e}")
+            logging.error(f"Error processing subcategory {subcategory_name}: {e}")
 
     def process_species(self, category_name, subcategory_name, species_name, species_path, sound_structure):
         try:
@@ -131,6 +140,7 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error processing species {species_name}: {e}")
+            logging.error(f"Error processing species {species_name}: {e}")
 
 
 def generate_spectrogram_view(request):
@@ -173,12 +183,14 @@ def generate_spectrogram_view(request):
 
         except FileNotFoundError as e:
             print(f"File not found error: {e}")
+            logging.error(f"File not found error: {e}")
             return JsonResponse({
                 'success': False,
                 'error': f"Audio file not found: {audio_url}"
             }, status=404)
         except Exception as e:
             print(f"Unexpected error: {e}")
+            logging.error(f"Unexpected error: {e}")
             traceback.print_exc()
             return JsonResponse({
                 'success': False,

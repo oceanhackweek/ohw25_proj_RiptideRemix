@@ -10,7 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+import logging
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,3 +133,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+
+# Logging
+# https://docs.djangoproject.com/en/stable/topics/logging/
+# Based on Heroku's recommended logging setup
+# (https://github.com/heroku/django-heroku/blob/master/django_heroku/core.py)
+
+logging.captureWarnings(capture=True)
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", logging.INFO)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+        },
+        "django.security.DisallowedHost": {
+            # Redirect these messages to null handler
+            # Trusting that our list of allowed hosts is correct now
+            "handlers": ["null"],\
+            "propagate": False,
+        },
+    },
+}
