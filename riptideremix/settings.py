@@ -155,11 +155,5 @@ LOGGING = {
             "handlers": ["console"],
             "level": LOG_LEVEL,
         },
-        "django.security.DisallowedHost": {
-            # Redirect these messages to null handler
-            # Trusting that our list of allowed hosts is correct now
-            "handlers": ["null"],\
-            "propagate": False,
-        },
     },
 }
