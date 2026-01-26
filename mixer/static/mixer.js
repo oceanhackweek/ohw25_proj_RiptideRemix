@@ -249,12 +249,17 @@ soundSelect.addEventListener('change', () => {
     updatePreview();
 });
 
-[speedControl, pitchControl, amplitudeControl, loopsControl].forEach(el => {
+[speedControl, pitchControl, amplitudeControl].forEach(el => {
     el.addEventListener('input', () => {
         speedValue.textContent = parseFloat(speedControl.value).toFixed(1) + 'x';
         pitchValue.textContent = pitchControl.value + ' Hz';
         amplitudeValue.textContent = parseFloat(amplitudeControl.value).toFixed(1) + 'x';
+
         if (isPlaying) updateAudioSettings();
+    });
+});
+[speedControl, pitchControl, amplitudeControl].forEach(el => {
+    el.addEventListener('change', () => {
         updatePreview();
     });
 });
