@@ -20,11 +20,14 @@ const spectrogramContainer = document.getElementById('spectrogramContainer');
 
 const addToMixBtn = document.getElementById("addToMix");
 const timeline = document.querySelector("#fullSongContainer .timeline-track");
+const songWrapper = document.getElementById("songWrapper");
+
 
 let audioContext = null;
 let sourceNode = null;
 let gainNode = null;
 let audioBuffer = null;
+let playheadInterval = null;
 let isPlaying = false;
 let songClips = [];
 let songSources = [];
@@ -45,6 +48,31 @@ try {
 function initAudioContext() {
     if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
     return audioContext;
+}
+function resolveIconPath(clip) {
+    const base = "/static/icons";
+    const { category, subcategory, species } = clip;
+
+    const catData = soundStructure?.[category];
+    const subData = catData?.[subcategory];
+
+    // Species (only if species folder exists)
+    if (
+        subData &&
+        species &&
+        species !== "_direct" &&
+        Array.isArray(subData[species])
+    ) {
+        return `${base}/${species}.png`;
+    }
+
+    // Subcategory
+    if (subcategory && subcategory !== "_direct") {
+        return `${base}/${subcategory}.png`;
+    }
+
+    // Category fallback
+    return `${base}/${category}.png`;
 }
 
 function stopPlayback() {
@@ -132,6 +160,10 @@ function updatePreview() {
     loadTimeseries(url);
     loadSpectrogram(url);
 }
+songWrapper.addEventListener("scroll", () => {
+    const playhead = document.getElementById("playhead");
+    playhead.style.top = songWrapper.scrollTop + "px";
+});
 
 // --- Dropdown Logic ---
 categorySelect.addEventListener('change', function() {
@@ -246,21 +278,33 @@ addToMixBtn.addEventListener("click", async () => {
         .then(b => ctx.decodeAudioData(b));
 
     const baseDuration = buffer.duration;
-    const loops = +loopsControl.value;
+    let loops = +loopsControl.value;
+    let totalDuration = baseDuration * loops;
+
+    // Clip to max 60s
+    if (totalDuration > SONG_DURATION) {
+        loops = Math.floor(SONG_DURATION / baseDuration);   // full loops that fit
+        const remainder = SONG_DURATION - loops * baseDuration; // partial last loop
+        totalDuration = loops * baseDuration + remainder;
+    } else {
+        var remainder = 0;
+    }
 
     const clip = {
-        id: crypto.randomUUID(),
-        url,
-        category: categorySelect.value,
-        species: speciesSelect.value,
-        speed: +speedControl.value,
-        pitch: +pitchControl.value,
-        amplitude: +amplitudeControl.value,
-        loops,
-        start: 0,
-        baseDuration,
-        duration: baseDuration * loops
-    };
+    id: crypto.randomUUID(),
+    url,
+    category: categorySelect.value,
+    subcategory: subcategorySelect.value,
+    species: speciesSelect.value,
+    speed: +speedControl.value,
+    pitch: +pitchControl.value,
+    amplitude: +amplitudeControl.value,
+    fullLoops: loops,
+    remainder,
+    start: 0,
+    baseDuration,
+    duration: totalDuration
+};
 
     songClips.push(clip);
     renderSong();
@@ -328,7 +372,7 @@ async function renderSong() {
         
         el.innerHTML = `
             <div class="clip-icon">
-                <img src="/static/icons/${clip.species}.png" />
+                <img src="${resolveIconPath(clip)}" />
             </div>
             <div class="clip-waveform" style="
                 background-color: ${waveformColor};
@@ -342,34 +386,63 @@ async function renderSong() {
         `;
 
         enableDrag(el, clip);
-        el.onclick = () => {
+        el.onclick = e => {
+            e.stopPropagation(); // don’t bubble into drag logic
             selectClip(clip.id);
-            renderSong(); // re-render to update highlight
         };
 
         track.append(el);
         container.appendChild(track);
+        
     }
+    container.style.minWidth = (SONG_DURATION * PX_PER_SECOND + 48) + "px";
+    resizeSongGrid();
+}
+
+function resizeSongGrid() {
+    const grid = document.getElementById("songGrid");
+    const tracksContainer = document.getElementById("songTracks");
+
+    // Minimum width to cover full 60s
+    const minWidth = SONG_DURATION * PX_PER_SECOND + 48; // +24px padding left + right
+    const contentWidth = tracksContainer.scrollWidth;
+
+    grid.style.width = Math.max(minWidth, contentWidth) + "px";
+    grid.style.height = tracksContainer.scrollHeight + "px";
 }
 
 function enableDrag(el, clip) {
     el.onmousedown = e => {
+        e.preventDefault();
+
         const startX = e.clientX;
-        const startLeft = clip.start * PX_PER_SECOND;
+        const startLeftPx = el.offsetLeft;
+
+        const minLeftPx = 24;
+        const maxLeftPx =
+            24 + (SONG_DURATION - clip.duration) * PX_PER_SECOND;
 
         document.onmousemove = ev => {
-            let dx = ev.clientX - startX;
-            let px = Math.max(
-                0,
-                Math.min(startLeft + dx, SONG_DURATION * PX_PER_SECOND)
-            );
+            const dx = ev.clientX - startX;
 
-            clip.start = Math.round(px / PX_PER_SECOND);
-            el.style.left = (px + 24) + "px";
+            let newLeftPx = startLeftPx + dx;
+            newLeftPx = Math.max(minLeftPx, Math.min(newLeftPx, maxLeftPx));
+
+            el.style.left = newLeftPx + "px";
+
+            // pixels → seconds
+            const startSeconds = (newLeftPx - 24) / PX_PER_SECOND;
+
+            // HARD clamp (this is the important part)
+            clip.start = Math.max(
+                0,
+                Math.min(startSeconds, SONG_DURATION - clip.duration)
+            );
         };
 
         document.onmouseup = () => {
             document.onmousemove = null;
+            document.onmouseup = null;
         };
     };
 }
@@ -377,12 +450,30 @@ document.getElementById("songPlay").onclick = async () => {
     const ctx = initAudioContext();
     songSources = [];
 
+    const playhead = document.getElementById("playhead");
+    const startTime = ctx.currentTime;
+
+    playhead.style.left = "24px";
+
+    playheadInterval = setInterval(() => {
+        const elapsed = ctx.currentTime - startTime;
+        const px = elapsed * PX_PER_SECOND;
+
+        if (elapsed > SONG_DURATION) {
+            clearInterval(playheadInterval);
+            return;
+        }
+
+        playhead.style.left = (px + 24) + "px";
+    }, 30);
+
     for (const clip of songClips) {
         const buffer = await fetch(clip.url)
             .then(r => r.arrayBuffer())
             .then(b => ctx.decodeAudioData(b));
 
-        for (let i = 0; i < clip.loops; i++) {
+        // Play full loops
+        for (let i = 0; i < clip.fullLoops; i++) {
             const src = ctx.createBufferSource();
             const gain = ctx.createGain();
 
@@ -396,25 +487,36 @@ document.getElementById("songPlay").onclick = async () => {
 
             songSources.push(src);
         }
+
+        // Play remainder if exists
+        if (clip.remainder > 0) {
+            const src = ctx.createBufferSource();
+            const gain = ctx.createGain();
+
+            src.buffer = buffer;
+            src.playbackRate.value = clip.speed;
+            src.detune.value = clip.pitch;
+            gain.gain.value = clip.amplitude;
+
+            src.connect(gain).connect(ctx.destination);
+            src.start(ctx.currentTime + clip.start + clip.fullLoops * buffer.duration, 0, clip.remainder);
+
+            songSources.push(src);
+        }
     }
 };
 function selectClip(id) {
-    if (selectedClipId === id) {
-        selectedClipId = null; // toggle off if already selected
-    } else {
-        selectedClipId = id;
-    }
-    renderSong(); // rerender to update highlight
+    selectedClipId = selectedClipId === id ? null : id;
+    renderSong();
 }
 document.getElementById("songStop").onclick = () => {
     songSources.forEach(src => {
         try { src.stop(); } catch {}
     });
     songSources = [];
+
+    clearInterval(playheadInterval);
 };
-function selectClip(id) {
-    selectedClipId = id;
-}
 
 document.getElementById("deleteClip").onclick = () => {
     if (!selectedClipId) return;
@@ -483,51 +585,56 @@ function bufferToWavBlob(buffer) {
 }
 
 async function exportMixAsWav() {
-  if (!songClips.length) {
-    alert("No clips to export!");
-    return;
-  }
-
-  const sampleRate = 44100;  // Standard sample rate
-  // Calculate total duration needed, accounting for clip start + duration
-  const totalDuration = Math.max(...songClips.map(c => c.start + c.duration));
-  const ctx = new OfflineAudioContext(2, sampleRate * totalDuration, sampleRate);
-
-  for (const clip of songClips) {
-    // Fetch and decode audio buffer for this clip
-    const buffer = await fetch(clip.url)
-      .then(r => r.arrayBuffer())
-      .then(b => ctx.decodeAudioData(b));
-
-    // Create a buffer source for each loop iteration
-    for (let i = 0; i < clip.loops; i++) {
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.playbackRate.value = clip.speed;
-      source.detune.value = clip.pitch;
-
-      const gainNode = ctx.createGain();
-      gainNode.gain.value = clip.amplitude;
-
-      source.connect(gainNode).connect(ctx.destination);
-
-      // Start time = clip start + loop iteration * base duration
-      source.start(clip.start + i * buffer.duration);
+    if (!songClips.length) {
+        alert("No clips to export!");
+        return;
     }
-  }
 
-  // Render the mixed audio offline
-  const renderedBuffer = await ctx.startRendering();
+    const sampleRate = 44100;
+    const totalDuration = Math.max(...songClips.map(c => c.start + c.duration));
+    const ctx = new OfflineAudioContext(2, sampleRate * totalDuration, sampleRate);
 
-  // Convert to WAV blob
-  const wavBlob = bufferToWavBlob(renderedBuffer);
+    for (const clip of songClips) {
+        const buffer = await fetch(clip.url)
+            .then(r => r.arrayBuffer())
+            .then(b => ctx.decodeAudioData(b));
 
-  // Trigger file download
-  const url = URL.createObjectURL(wavBlob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "mix.wav";
-  a.click();
+        // Full loops
+        for (let i = 0; i < clip.fullLoops; i++) {
+            const source = ctx.createBufferSource();
+            const gainNode = ctx.createGain();
 
-  URL.revokeObjectURL(url);
+            source.buffer = buffer;
+            source.playbackRate.value = clip.speed;
+            source.detune.value = clip.pitch;
+            gainNode.gain.value = clip.amplitude;
+
+            source.connect(gainNode).connect(ctx.destination);
+            source.start(clip.start + i * buffer.duration);
+        }
+
+        // Remainder
+        if (clip.remainder > 0) {
+            const source = ctx.createBufferSource();
+            const gainNode = ctx.createGain();
+
+            source.buffer = buffer;
+            source.playbackRate.value = clip.speed;
+            source.detune.value = clip.pitch;
+            gainNode.gain.value = clip.amplitude;
+
+            source.connect(gainNode).connect(ctx.destination);
+            source.start(clip.start + clip.fullLoops * buffer.duration, 0, clip.remainder);
+        }
+    }
+
+    const renderedBuffer = await ctx.startRendering();
+    const wavBlob = bufferToWavBlob(renderedBuffer);
+
+    const url = URL.createObjectURL(wavBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mix.wav";
+    a.click();
+    URL.revokeObjectURL(url);
 }

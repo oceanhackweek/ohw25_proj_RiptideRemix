@@ -58,6 +58,16 @@
     border-bottom: 1px solid #ddd;
 }
 
+#playhead {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: red;
+    z-index: 20;
+    pointer-events: none;
+}
+
 /* ========== CLIP ========== */
 
 .clip {
