@@ -1,25 +1,22 @@
 # mixer/views.py
-import os
-import json
-import logging
-import traceback
-
-from django.conf import settings
-from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-
-logger = logging.getLogger(__name__)
-
+from django.http import JsonResponse
+import os
+import json
+from django.conf import settings
+import traceback
 
 # Import spectrogram utilities
 try:
     from .spectrogram_utils import generate_spectrogram as generate_spectrogram_util
+    from .spectrogram_utils import generate_timeseries as generate_timeseries_util
+    from .spectrogram_utils import timeSeriesForSongSlider 
     from .spectrogram_utils import get_audio_file_path
+
     SPECTROGRAM_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Could not import spectrogram utilities: {e}")
-    logger.debug(f"Warning: Could not import spectrogram utilities: {e}")
     SPECTROGRAM_AVAILABLE = False
     # Define placeholder functions
     def generate_spectrogram_util(audio_path, speed, pitch, amplitude):
@@ -38,6 +35,7 @@ class MixerView(TemplateView):
 
         context['sound_structure'] = sound_structure
         context['sound_structure_json'] = sound_structure
+        context['timeline_range'] = range(61)  # 0 to 60
         return context
 
     def get_sound_structure(self):
@@ -59,7 +57,6 @@ class MixerView(TemplateView):
 
         if not sounds_path:
             print("ERROR: Could not find sounds directory!")
-            logger.debug("Could not find sounds directory!")
             return
 
         sound_structure = {}
@@ -77,7 +74,7 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error loading sound structure: {e}")
-            logger.error(f"Error loading sound structure: {e}")
+            import traceback
             traceback.print_exc()
 
         return sound_structure
@@ -102,7 +99,6 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error processing category {category_name}: {e}")
-            logging.error(f"Error processing category {category_name}: {e}")
 
     def process_subcategory(self, category_name, subcategory_name, subcategory_path, sound_structure):
         try:
@@ -123,7 +119,6 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error processing subcategory {subcategory_name}: {e}")
-            logging.error(f"Error processing subcategory {subcategory_name}: {e}")
 
     def process_species(self, category_name, subcategory_name, species_name, species_path, sound_structure):
         try:
@@ -140,7 +135,6 @@ class MixerView(TemplateView):
 
         except Exception as e:
             print(f"Error processing species {species_name}: {e}")
-            logging.error(f"Error processing species {species_name}: {e}")
 
 
 def generate_spectrogram_view(request):
@@ -183,14 +177,12 @@ def generate_spectrogram_view(request):
 
         except FileNotFoundError as e:
             print(f"File not found error: {e}")
-            logging.error(f"File not found error: {e}")
             return JsonResponse({
                 'success': False,
                 'error': f"Audio file not found: {audio_url}"
             }, status=404)
         except Exception as e:
             print(f"Unexpected error: {e}")
-            logging.error(f"Unexpected error: {e}")
             traceback.print_exc()
             return JsonResponse({
                 'success': False,
@@ -198,3 +190,128 @@ def generate_spectrogram_view(request):
             }, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def spectrogram_view(request):
+    # just an alias for generate_spectrogram_view
+    return generate_spectrogram_view(request)
+
+def generate_timeseries_view(request):
+    if not SPECTROGRAM_AVAILABLE:
+        return JsonResponse({
+            'success': False,
+            'error': 'Spectrogram utilities not available. Check server logs.'
+        }, status=500)
+
+    if request.method == 'GET':
+        audio_url = request.GET.get('audio_url', '')
+        speed = float(request.GET.get('speed', 1.0))
+        pitch = int(request.GET.get('pitch', 0))
+        amplitude = float(request.GET.get('amplitude', 1.0))
+
+        print(f"Parameters: audio_url={audio_url}, speed={speed}, pitch={pitch}, amplitude={amplitude}")
+
+        if not audio_url:
+            return JsonResponse({'error': 'No audio URL provided'}, status=400)
+
+        try:
+            # Get the actual file path
+            audio_path = get_audio_file_path(audio_url)
+            print(f"Found audio file at: {audio_path}")
+
+            # Generate the waveform (timeseries) using the UTILITY function
+            ts_base64 = generate_timeseries_util(audio_path, speed, pitch, amplitude)
+
+            if ts_base64 is None:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Failed to generate timeseries'
+                }, status=500)
+
+            return JsonResponse({
+                'success': True,
+                'timeseries': ts_base64,
+                'audio_url': audio_url
+            })
+
+        except FileNotFoundError as e:
+            print(f"File not found error: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': f"Audio file not found: {audio_url}"
+            }, status=404)
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def timeseries_view(request):
+    # alias
+    return generate_timeseries_view(request)
+
+from django.views.decorators.http import require_GET
+
+def generate_timeseries_for_song_slider_view(request):
+    if not SPECTROGRAM_AVAILABLE:
+        return JsonResponse({
+            'success': False,
+            'error': 'Spectrogram utilities not available. Check server logs.'
+        }, status=500)
+
+    if request.method == 'GET':
+        audio_url = request.GET.get('audio_url', '')
+        speed = float(request.GET.get('speed', 1.0))
+        pitch = int(request.GET.get('pitch', 0))
+        amplitude = float(request.GET.get('amplitude', 1.0))
+        category = request.GET.get('category', '')
+
+        print(f"Parameters: audio_url={audio_url}, speed={speed}, pitch={pitch}, amplitude={amplitude}, category={category}")
+
+        if not audio_url:
+            return JsonResponse({'error': 'No audio URL provided'}, status=400)
+
+        try:
+            # Get the actual file path
+            audio_path = get_audio_file_path(audio_url)
+            print(f"Found audio file at: {audio_path}")
+
+            # Generate the waveform (timeseries) using the UTILITY function
+            ts_base64 = timeSeriesForSongSlider(audio_path, speed, pitch, amplitude, category)
+
+            if ts_base64 is None:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Failed to generate timeseries'
+                }, status=500)
+
+            return JsonResponse({
+                'success': True,
+                'timeseries': ts_base64,
+                'audio_url': audio_url
+            })
+
+        except FileNotFoundError as e:
+            print(f"File not found error: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': f"Audio file not found: {audio_url}"
+            }, status=404)
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def timeseriesSlider_view(request):
+    # alias
+    return generate_timeseries_for_song_slider_view(request)

@@ -1,38 +1,24 @@
 {% extends "base.html" %}
+
 {% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static '/mixer.css' %}">
 <div class="container my-5">
     <h2 class="text-center mb-5 text-primary">Mixer</h2>
 
     <p class="fs-5">
-        Drift through our collection and discover glaciers groaning, icebergs cracking, whales singing their hearts out,
-        and even the occasional mischievous crocodile.
+        WRITE MIXER WELCOME TEXT HERE
     </p>
-    <div>
-        <h3>Clip Editor</h3>
-            <p class="fs-5">
-                Each clip is yours to play with:
-            </p>
-            <ul class="fs-5">
-                <li><strong>Speed it up</strong> to make it race like a storm or slow it down to let it drift like a lazy current.</li>
-                <li><strong>Shift the frequency</strong> to soar into the skies or rumble in the deep.</li>
-                <li><strong>Adjust the amplitude</strong> to make it whisper or roar.</li>
-            </ul>
-            <p class="fs-5">
-                Experiment freely—the ocean has endless voices, and now they're in your hands.
-            </p>
-            <p class="fs-5 mb-0">
-                When you've crafted the sound just the way you like, click
-                <span class="badge bg-primary">Add to Song</span>
-                to weave it into your grand ocean symphony.
-            </p>
-        </div>
-    </div>
-    <div class="card p-3 mb-4 mt-4">
-        <!-- Cascading dropdown menu for sound selection -->
-        <div class="row mb-3">
-            <div class="col-md-4">
+
+    <!-- Thick horizontal line -->
+    <hr class="thick-hr">
+
+    <div class="row">
+        <!-- LEFT: Dropdowns -->
+        <div class="col-md-2">
+            <h5>Select Sound</h5>
+            <div class="mb-3">
                 <label for="categorySelect" class="form-label fw-bold">Category:</label>
                 <select id="categorySelect" class="form-select">
                     <option value="">Select a category...</option>
@@ -42,417 +28,113 @@
                 </select>
             </div>
 
-            <div class="col-md-4">
+            <div class="mb-3">
                 <label for="subcategorySelect" class="form-label fw-bold">Subcategory:</label>
                 <select id="subcategorySelect" class="form-select" disabled>
                     <option value="">Select a category first...</option>
                 </select>
             </div>
 
-            <div class="col-md-4">
+            <div class="mb-3">
                 <label for="speciesSelect" class="form-label fw-bold">Species/Type:</label>
                 <select id="speciesSelect" class="form-select" disabled>
                     <option value="">Select a subcategory first...</option>
                 </select>
             </div>
-        </div>
 
-        <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="mb-3">
                 <label for="soundSelect" class="form-label fw-bold">Sound Clip:</label>
                 <select id="soundSelect" class="form-select" disabled>
                     <option value="">Make selections above...</option>
                 </select>
             </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button id="playClip" class="btn btn-primary me-2 w-50">Listen to Sound</button>
-                <button id="previewSpectr" class="btn btn-primary me-2 w-50">Preview Spectrogram</button>
-                <button id="addToMix" class="btn btn-success w-50">Add to Your Song!</button>
+        </div>
+
+        <!-- CENTER: Waveform + Spectrogram -->
+        <div class="col-md-6">
+            <h5>Preview</h5>
+
+            <!-- Waveform image -->
+            <div id="waveformContainer" class="mb-3 text-center" style="border:1px solid #dee2e6; border-radius:5px; min-height:150px; display:flex; align-items:center; justify-content:center;">
+                <div class="text-muted">Select a sound to see its waveform</div>
+            </div>
+
+            <!-- Spectrogram image -->
+            <div id="spectrogramContainer" class="text-center" style="min-height: 150px;">
+                <div class="text-muted py-5">
+                    <i class="bi bi-graph-up" style="font-size: 3rem;"></i>
+                    <p class="mt-2">Select a sound to see its spectrogram</p>
+                </div>
             </div>
         </div>
 
-        <hr>
+        <!-- RIGHT: Controls -->
+        <div class="col-md-4">
+            <h5>Controls</h5>
 
-        <!-- Controls -->
-        <div class="row">
-            <div class="col-md-3">
+            <div class="mb-3">
                 <label class="form-label">Speed</label>
                 <input type="range" id="speed" class="form-range" min="0.2" max="4" step="0.1" value="1">
                 <div class="small text-muted" id="speedValue">1.0x</div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Pitch</label>
-                <input type="range" id="frequency" class="form-range" min="-12" max="12" step="1" value="0">
-                <div class="small text-muted" id="pitchValue">0 semitones</div>
+
+            <div class="mb-3">
+                <label class="form-label">Pitch (Hz)</label>
+                <input type="range" id="frequency" class="form-range" min="-2000" max="2000" step="100" value="0">
+                <div class="small text-muted" id="pitchValue">0 Hz</div>
             </div>
-            <div class="col-md-3">
+
+            <div class="mb-3">
                 <label class="form-label">Amplitude</label>
                 <input type="range" id="amplitude" class="form-range" min="0" max="5" step="0.1" value="1">
                 <div class="small text-muted" id="amplitudeValue">1.0x</div>
             </div>
-            <div class="col-md-3">
+
+            <div class="mb-3">
                 <label class="form-label">Loops</label>
                 <input type="number" id="loops" class="form-control" min="1" max="10" value="1">
             </div>
+
+            <div class="d-flex mb-3">
+                <button id="playClip" class="btn btn-primary me-2 w-50">Play</button>
+                <button id="resetBtn" class="btn btn-outline-secondary w-50">Reset</button>
+            </div>
+
+            <button id="addToMix" class="btn btn-success w-100">Add to Your Song</button>
         </div>
     </div>
 
-    <!-- Spectrogram Display -->
-    <div class="card p-3 mb-4">
-        <div class="card-header bg-light">
-            <h4 class="mb-0">Spectrogram</h4>
-            <p class="text-muted mb-0 small">Visual representation of you audio file</p>
-        </div>
-        <div class="card-body">
-            <div id="spectrogramLoading" class="text-center" style="display: none;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2">Generating spectrogram...</p>
+    <!-- Thick horizontal line -->
+    <hr class="thick-hr">
+
+    <!-- BOTTOM: Full song placeholder -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h5>Your Song</h5>
+
+            <div id="songWrapper">
+                <div id="songGrid"></div>
+                <div id="playhead"></div>
+                <div id="songTracks"></div>
             </div>
-            <div id="spectrogramContainer">
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-graph-up" style="font-size: 3rem;"></i>
-                    <p class="mt-2">Select a sound and click Preview to see its spectrogram</p>
-                </div>
+
+            <div class="song-controls mt-2">
+                <button id="songPlay">▶ Play</button>
+                <button id="songStop">■ Stop</button>
+                <button id="deleteClip">🗑 Delete Selected</button>
+                <button id="clearSong">✖ Clear All</button>
+                <button id="exportWavBtn">⬇ Export</button>
             </div>
         </div>
     </div>
-
-    <!-- Audio Element (hidden) -->
-    <audio id="audioPlayer" style="display: none;"></audio>
 
     <!-- Hidden field to store sound structure -->
     {{ sound_structure_json|json_script:"sound-structure-data" }}
 </div>
+
+<audio id="audioPlayer" style="display: none;"></audio>
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-
-// Get sound structure from json_script tag
-const soundStructureElement = document.getElementById('sound-structure-data');
-let soundStructure = {};
-
-if (soundStructureElement && soundStructureElement.textContent) {
-    try {
-        soundStructure = JSON.parse(soundStructureElement.textContent);
-        console.log("Sound structure loaded:", soundStructure);
-    } catch (e) {
-        console.error("JSON parse error:", e);
-        console.log("Raw text content:", soundStructureElement.textContent.substring(0, 200));
-        // Fallback structure
-        soundStructure = {
-            'Anthropogenic': {'_files': []},
-            'Biological': {'_files': []},
-            'Other': {'_files': []},
-            'Seismic': {'_files': []}
-        };
-    }
-} else {
-    console.error("No sound structure data found");
-    console.log("Available elements with 'sound' in id:");
-    document.querySelectorAll('[id*="sound"]').forEach(el => {
-        console.log(`- ${el.id}: ${el.tagName}`);
-    });
-}
-
-// DOM Elements
-const categorySelect = document.getElementById('categorySelect');
-const subcategorySelect = document.getElementById('subcategorySelect');
-const speciesSelect = document.getElementById('speciesSelect');
-const soundSelect = document.getElementById('soundSelect');
-const playButton = document.getElementById('playClip');
-const audioPlayer = document.getElementById('audioPlayer');
-
-// Spectrogram elements
-const spectrogramLoading = document.getElementById('spectrogramLoading');
-const spectrogramContainer = document.getElementById('spectrogramContainer');
-
-// Control elements
-const speedControl = document.getElementById('speed');
-const pitchControl = document.getElementById('frequency');
-const amplitudeControl = document.getElementById('amplitude');
-const loopsControl = document.getElementById('loops');
-const speedValue = document.getElementById('speedValue');
-const pitchValue = document.getElementById('pitchValue');
-const amplitudeValue = document.getElementById('amplitudeValue');
-
-// Update control value displays
-if (speedControl && speedValue) {
-    speedControl.addEventListener('input', function() {
-        speedValue.textContent = this.value + 'x';
-    });
-}
-
-if (pitchControl && pitchValue) {
-    pitchControl.addEventListener('input', function() {
-        pitchValue.textContent = this.value + ' semitones';
-    });
-}
-
-if (amplitudeControl && amplitudeValue) {
-    amplitudeControl.addEventListener('input', function() {
-        amplitudeValue.textContent = this.value + 'x';
-    });
-}
-
-// Category selection
-categorySelect.addEventListener('change', function() {
-    const category = this.value;
-    console.log("Category selected:", category);
-
-    // Reset downstream selects
-    subcategorySelect.innerHTML = '<option value="">Select a subcategory...</option>';
-    speciesSelect.innerHTML = '<option value="">Select a subcategory first...</option>';
-    soundSelect.innerHTML = '<option value="">Make selections above...</option>';
-
-    if (category && soundStructure[category]) {
-        console.log("Category found in structure:", soundStructure[category]);
-        // Enable subcategory select
-        subcategorySelect.disabled = false;
-
-        // Populate subcategories
-        const subcategories = Object.keys(soundStructure[category]);
-        console.log("Subcategories found:", subcategories);
-
-        subcategories.forEach(subcat => {
-            // Skip special '_files' entry
-            if (subcat !== '_files') {
-                const option = document.createElement('option');
-                option.value = subcat;
-                option.textContent = subcat;
-                subcategorySelect.appendChild(option);
-            }
-        });
-
-        // Also check if there are direct files in this category
-        if (soundStructure[category]._files) {
-            console.log("Found direct files in category:", soundStructure[category]._files);
-            const directOption = document.createElement('option');
-            directOption.value = '_direct';
-            directOption.textContent = 'Any/all';
-            subcategorySelect.appendChild(directOption);
-        }
-    } else {
-        console.log("Category not found or empty");
-        subcategorySelect.disabled = true;
-        speciesSelect.disabled = true;
-        soundSelect.disabled = true;
-    }
-
-    // Disable downstream selects
-    speciesSelect.disabled = true;
-    soundSelect.disabled = true;
-});
-
-// Subcategory selection
-subcategorySelect.addEventListener('change', function() {
-    const category = categorySelect.value;
-    const subcategory = this.value;
-    console.log("Subcategory selected:", category, subcategory);
-
-    // Reset downstream selects
-    speciesSelect.innerHTML = '<option value="">Select a species/type...</option>';
-    soundSelect.innerHTML = '<option value="">Select a species first...</option>';
-
-    if (category && subcategory && soundStructure[category] && soundStructure[category][subcategory]) {
-        console.log("Subcategory found:", soundStructure[category][subcategory]);
-        // Handle direct files case
-        if (subcategory === '_direct') {
-            speciesSelect.disabled = true;
-            soundSelect.disabled = false;
-
-            // Populate sound files directly
-            soundSelect.innerHTML = '<option value="">Select a sound...</option>';
-            if (soundStructure[category]._files) {
-                soundStructure[category]._files.forEach(sound => {
-                    const option = document.createElement('option');
-                    option.value = sound.url;
-                    option.textContent = sound.display_name;
-                    soundSelect.appendChild(option);
-                });
-            }
-        } else {
-            // Enable species select
-            speciesSelect.disabled = false;
-
-            // Populate species
-            const speciesList = Object.keys(soundStructure[category][subcategory]);
-            console.log("Species found:", speciesList);
-
-            speciesList.forEach(species => {
-                if (species !== '_files') {
-                    const option = document.createElement('option');
-                    option.value = species;
-                    option.textContent = species;
-                    speciesSelect.appendChild(option);
-                }
-            });
-
-            // Check if there are direct files in subcategory
-            if (soundStructure[category][subcategory]._files) {
-                console.log("Found direct files in subcategory:", soundStructure[category][subcategory]._files);
-                const directOption = document.createElement('option');
-                directOption.value = '_direct';
-                directOption.textContent = 'Any/all';
-                speciesSelect.appendChild(directOption);
-            }
-        }
-    } else {
-        console.log("Subcategory not found");
-        speciesSelect.disabled = true;
-        soundSelect.disabled = true;
-    }
-});
-
-// Species selection
-speciesSelect.addEventListener('change', function() {
-    const category = categorySelect.value;
-    const subcategory = subcategorySelect.value;
-    const species = this.value;
-    console.log("Species selected:", category, subcategory, species);
-
-    // Reset sound select
-    soundSelect.innerHTML = '<option value="">Select a sound...</option>';
-
-    if (category && subcategory && species) {
-        // Enable sound select
-        soundSelect.disabled = false;
-
-        if (species === '_direct') {
-            // Direct files in subcategory
-            const files = soundStructure[category][subcategory]._files || [];
-            console.log("Direct files:", files);
-            files.forEach(sound => {
-                const option = document.createElement('option');
-                option.value = sound.url;
-                option.textContent = sound.display_name;
-                soundSelect.appendChild(option);
-            });
-        } else if (soundStructure[category] &&
-                   soundStructure[category][subcategory] &&
-                   soundStructure[category][subcategory][species]) {
-            // Files in species directory
-            const files = soundStructure[category][subcategory][species];
-            console.log("Species files:", files);
-            files.forEach(sound => {
-                const option = document.createElement('option');
-                option.value = sound.url;
-                option.textContent = sound.display_name;
-                soundSelect.appendChild(option);
-            });
-        } else {
-            console.log("Species not found in structure");
-            soundSelect.innerHTML = '<option value="">No sounds found</option>';
-        }
-    } else {
-        console.log("Missing selection");
-        soundSelect.disabled = true;
-    }
-});
-
-// Function to load spectrogram
-async function loadSpectrogram(audioUrl) {
-    // Show loading indicator
-    spectrogramLoading.style.display = 'block';
-    spectrogramContainer.innerHTML = '';
-
-    // Get current control values
-    const speed = parseFloat(speedControl.value);
-    const pitch = parseFloat(pitchControl.value);
-    const amplitude = parseFloat(amplitudeControl.value);
-
-    try {
-        // Call Django endpoint to generate spectrogram
-        const response = await fetch(`/mixer/spectrogram/?audio_url=${encodeURIComponent(audioUrl)}&speed=${speed}&pitch=${pitch}&amplitude=${amplitude}`);
-        const data = await response.json();
-
-        if (data.success) {
-            // Create image element with spectrogram
-            const img = document.createElement('img');
-            img.src = `data:image/png;base64,${data.spectrogram}`;
-            img.alt = 'Audio Spectrogram';
-            img.className = 'img-fluid';
-            img.style.border = '1px solid #dee2e6';
-            img.style.borderRadius = '5px';
-
-            // Add caption
-            const caption = document.createElement('p');
-            caption.className = 'text-muted text-center mt-2 small';
-            caption.textContent = 'Spectrogram with current settings applied';
-
-            // Clear container and add new content
-            spectrogramContainer.innerHTML = '';
-            spectrogramContainer.appendChild(img);
-            spectrogramContainer.appendChild(caption);
-        } else {
-            spectrogramContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    <strong>Error:</strong> ${data.error || 'Failed to generate spectrogram'}
-                </div>
-            `;
-        }
-    } catch (error) {
-        console.error('Error loading spectrogram:', error);
-        spectrogramContainer.innerHTML = `
-            <div class="alert alert-danger">
-                <strong>Error:</strong> ${error.message}
-            </div>
-        `;
-    } finally {
-        // Hide loading indicator
-        spectrogramLoading.style.display = 'none';
-    }
-}
-
-// Modified play button click handler
-playButton.addEventListener('click', async function() {
-    const selectedSound = soundSelect.value;
-
-    if (!selectedSound) {
-        alert('Please select a sound clip first!');
-        return;
-    }
-
-    // Play the audio
-    audioPlayer.src = selectedSound;
-    audioPlayer.playbackRate = parseFloat(speedControl.value);
-    audioPlayer.volume = parseFloat(amplitudeControl.value);
-    audioPlayer.playbackRate = parseFloat(speedControl.value) * Math.pow(2, parseFloat(pitchControl.value) / 12);
-
-    // Play the audio
-    audioPlayer.play().catch(e => {
-        console.error('Error playing audio:', e);
-        alert('Error playing audio: ' + e.message);
-    });
-
-    // Handle looping
-    const loops = parseInt(loopsControl.value);
-    if (loops > 1) {
-        let playCount = 0;
-        audioPlayer.onended = function() {
-            playCount++;
-            if (playCount < loops) {
-                audioPlayer.currentTime = 0;
-                audioPlayer.play();
-            }
-        };
-    }
-
-    // Load spectrogram
-    await loadSpectrogram(selectedSound);
-});
-
-// Update spectrogram when controls change (optional)
-[speedControl, pitchControl, amplitudeControl].forEach(control => {
-    control.addEventListener('change', async function() {
-        const selectedSound = soundSelect.value;
-        if (selectedSound) {
-            // Regenerate spectrogram with new settings
-            await loadSpectrogram(selectedSound);
-        }
-    });
-});
-</script>
+<script src="{% static '/mixer.js' %}"></script>
 {% endblock extra_js %}

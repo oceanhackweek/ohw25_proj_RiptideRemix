@@ -1,35 +1,161 @@
-.icon-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 100px);
-    gap: 15px;
+/* ========== GENERAL PREVIEW ========== */
+
+.preview-box {
+    border: 1px solid #ddd;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    border-radius: 4px;
 }
 
-.icon {
-    text-align: center;
-    cursor: pointer;
-}
+/* ========== SONG WRAPPER ========== */
 
-.icon img {
-    width: 80px;
-    height: 80px;
-}
-
-#timeline {
+#songWrapper {
     position: relative;
-    height: 90px;
-    border: 2px solid #ccc;
-    background: #f8f9fa;
+    height: 260px;
+    overflow-x: auto;
+    border: 1px solid #ccc;
+    background: #fafafa;
 }
 
-.clip-block {
+/* ========== BACKGROUND GRID (60s) ========== */
+
+#songGrid {
     position: absolute;
-    top: 30px;
-    height: 30px;
-    background: #0d6efd;
-    color: white;
-    padding: 4px 6px;
-    border-radius: 6px;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(
+            to right,
+            #e0e0e0 0px,
+            #e0e0e0 1px,
+            transparent 1px,
+            transparent 20px
+        ),
+        repeating-linear-gradient(
+            to bottom,
+            #f0f0f0 0px,
+            #f0f0f0 1px,
+            transparent 1px,
+            transparent 40px
+        );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ========== TRACK STACK ========== */
+
+#songTracks {
+    position: relative;
+    min-width: 1200px; /* 60s × 20px */
+    z-index: 1;
+}
+
+.song-track {
+    position: relative;
+    height: 40px;
+    border-bottom: 1px solid #ddd;
+}
+
+#playhead {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: red;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* ========== CLIP ========== */
+
+.clip {
+    position: absolute;
+    top: 10px;
+    height: 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
     cursor: grab;
-    font-size: 12px;
-    white-space: nowrap;
+}
+
+.clip:active {
+    cursor: grabbing;
+}
+
+/* ========== CLIP ICON ========== */
+
+.clip-icon {
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clip-icon img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    opacity: 0.8;
+}
+.thick-hr {
+  border: none;
+  border-top: 5px solid #343537; /* Bootstrap primary blue */
+  margin: 2rem 0;
+  border-radius: 2px;
+}
+/* ========== WAVEFORM ========== */
+
+.clip img {
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+.clip-waveform {
+  background-color: var(--waveform-color);
+  -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
+  mask-image: url('data:image/png;base64,${waveformData.timeseries}');
+  mask-repeat: repeat-x;
+  mask-size: auto 100%;
+  width: 100%;
+  height: 100%;
+}
+
+/* category colors */
+.clip.biological {
+    --waveform-color: orange;
+}
+
+.clip.anthropogenic {
+    --waveform-color: green;
+}
+
+.clip.environmental {
+    --waveform-color: blue;
+}
+/* Highlight selected clip */
+.clip.selected {
+    border: 2px solid #0d6efd; /* bootstrap primary blue */
+    box-shadow: 0 0 6px #0d6efd88;
+    z-index: 10; /* above others */
+}
+
+/* ========== SONG CONTROLS ========== */
+
+.song-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.song-controls button {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
 }
