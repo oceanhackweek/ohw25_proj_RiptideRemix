@@ -1,71 +1,113 @@
-const subcategories = {
-    whale: [
-        { name: "Orca", file: "/static/audio/orca.wav" },
-        { name: "Humpback", file: "/static/audio/humpback.wav" }
-    ],
-    ice: [
-        { name: "Ice Crack", file: "/static/audio/ice.wav" }
-    ]
-};
+const soundStructure = JSON.parse(
+    document.getElementById("sound-structure-data").textContent
+);
 
-const category = document.getElementById("category");
-const subcategory = document.getElementById("subcategory");
+const categorySelect = document.getElementById("categorySelect");
+const subcategorySelect = document.getElementById("subcategorySelect");
+const speciesSelect = document.getElementById("speciesSelect");
 const iconGrid = document.getElementById("iconGrid");
 
-const editor = document.getElementById("clipEditor");
-const audio = document.getElementById("clipAudio");
-const spectrogram = document.getElementById("spectrogram");
-const title = document.getElementById("clipTitle");
+const playBtn = document.getElementById("playClip");
+const addBtn = document.getElementById("addToTimeline");
 
+const speed = document.getElementById("speed");
+const pitch = document.getElementById("pitch");
+const amplitude = document.getElementById("amplitude");
+const loops = document.getElementById("loops");
+
+const audio = document.getElementById("audioPlayer");
 const timeline = document.getElementById("timeline");
+
+let currentSound = null;
 const TIMELINE_SECONDS = 60;
 
-let currentClip = null;
-let timelineClips = [];
+/* ------------------ Dropdown Logic ------------------ */
 
-category.onchange = () => {
-    subcategory.innerHTML = "";
+categorySelect.onchange = () => {
+    reset(subcategorySelect, "Subcategory");
+    reset(speciesSelect, "Species");
     iconGrid.innerHTML = "";
-    subcategories[category.value]?.forEach((s, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = s.name;
-        subcategory.appendChild(opt);
+
+    const cat = categorySelect.value;
+    if (!cat) return;
+
+    subcategorySelect.disabled = false;
+    Object.keys(soundStructure[cat]).forEach(k => {
+        if (k !== "_files") addOption(subcategorySelect, k);
     });
 };
 
-subcategory.onchange = () => {
+subcategorySelect.onchange = () => {
+    reset(speciesSelect, "Species");
     iconGrid.innerHTML = "";
-    const clip = subcategories[category.value][subcategory.value];
 
-    const div = document.createElement("div");
-    div.className = "icon";
-    div.innerHTML = `<img src="/static/icons/sound.png"><br>${clip.name}`;
-    div.onclick = () => loadClip(clip);
-    iconGrid.appendChild(div);
+    const { value: cat } = categorySelect;
+    const sub = subcategorySelect.value;
+    if (!sub) return;
+
+    speciesSelect.disabled = false;
+    Object.keys(soundStructure[cat][sub]).forEach(k => {
+        if (k !== "_files") addOption(speciesSelect, k);
+    });
 };
 
-function loadClip(clip) {
-    currentClip = clip;
-    editor.classList.remove("d-none");
-    title.textContent = clip.name;
-    audio.src = clip.file;
+speciesSelect.onchange = () => {
+    iconGrid.innerHTML = "";
 
-    fetch(`/mixer/spectrogram/?file=${clip.file}`)
-        .then(r => r.json())
-        .then(d => spectrogram.src = "data:image/png;base64," + d.image);
+    const cat = categorySelect.value;
+    const sub = subcategorySelect.value;
+    const sp = speciesSelect.value;
+
+    if (!sp) return;
+
+    renderIcons(soundStructure[cat][sub][sp]);
+};
+
+/* ------------------ Icons ------------------ */
+
+function renderIcons(files) {
+    iconGrid.innerHTML = "";
+
+    files.forEach(sound => {
+        const div = document.createElement("div");
+        div.className = "icon";
+        div.innerHTML = `
+            <img src="/static/icons/sound.png">
+            <small>${sound.display_name}</small>
+        `;
+        div.onclick = () => selectSound(sound);
+        iconGrid.appendChild(div);
+    });
 }
 
-document.getElementById("addToTimeline").onclick = () => {
-    const params = {
-        clip: currentClip.file,
+function selectSound(sound) {
+    currentSound = sound;
+    audio.src = sound.url;
+    loadSpectrogram(sound.url);
+}
+
+/* ------------------ Playback ------------------ */
+
+playBtn.onclick = () => {
+    if (!currentSound) return alert("Select a sound first");
+    audio.playbackRate = speed.value;
+    audio.volume = Math.min(amplitude.value / 5, 1);
+    audio.play();
+};
+
+/* ------------------ Timeline ------------------ */
+
+addBtn.onclick = () => {
+    if (!currentSound) return alert("Select a sound first");
+
+    createTimelineClip({
+        clip: currentSound.url,
         speed: +speed.value,
         pitch: +pitch.value,
         amplitude: +amplitude.value,
         loops: +loops.value,
         start_time: 0
-    };
-    createTimelineClip(params);
+    });
 };
 
 function createTimelineClip(params) {
@@ -73,29 +115,47 @@ function createTimelineClip(params) {
     el.className = "clip-block";
     el.textContent = params.clip.split("/").pop();
     el.style.left = "0px";
-    el.style.width = (params.loops * 20) + "px";
+    el.style.width = (params.loops * 25) + "px";
 
     timeline.appendChild(el);
-    timelineClips.push({ el, params });
-
     drag(el, params);
 }
 
 function drag(el, params) {
     el.onmousedown = e => {
-        const shiftX = e.offsetX;
-
-        document.onmousemove = e => {
-            const rect = timeline.getBoundingClientRect();
-            let x = e.clientX - rect.left - shiftX;
+        const shift = e.offsetX;
+        document.onmousemove = ev => {
+            const r = timeline.getBoundingClientRect();
+            let x = ev.clientX - r.left - shift;
             x = Math.max(0, Math.min(x, timeline.clientWidth));
             el.style.left = x + "px";
-            params.start_time = Math.round((x / timeline.clientWidth) * 60);
+            params.start_time = Math.round((x / timeline.clientWidth) * TIMELINE_SECONDS);
         };
-
-        document.onmouseup = () => {
-            document.onmousemove = null;
-            document.onmouseup = null;
-        };
+        document.onmouseup = () => document.onmousemove = null;
     };
+}
+
+/* ------------------ Spectrogram ------------------ */
+
+function loadSpectrogram(url) {
+    fetch(`/mixer/spectrogram/?audio_url=${encodeURIComponent(url)}`)
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById("spectrogramContainer").innerHTML =
+                `<img class="img-fluid" src="data:image/png;base64,${d.spectrogram}">`;
+        });
+}
+
+/* ------------------ Helpers ------------------ */
+
+function reset(select, label) {
+    select.innerHTML = `<option value="">${label}</option>`;
+    select.disabled = true;
+}
+
+function addOption(select, text) {
+    const o = document.createElement("option");
+    o.value = text;
+    o.textContent = text;
+    select.appendChild(o);
 }
