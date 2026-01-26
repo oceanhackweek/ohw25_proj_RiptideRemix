@@ -129,7 +129,7 @@
                      data-title="Humpback Whale"
                      data-audio="{% static 'learn_page/audio/humpback.mp3' %}"
                      data-infocard="{% static 'learn_page/infocards/humpback.png' %}"
-                     data-infocard-audio="">
+                     data-infocard-audio="{% static 'learn_page/infocards/ifc_audio/humpback_a.mp3' %},{% static 'learn_page/infocards/ifc_audio/humpback_b.mp3' %},{% static 'learn_page/infocards/ifc_audio/humpback_c.mp3' %},{% static 'learn_page/infocards/ifc_audio/humpback_d.mp3' %},{% static 'learn_page/infocards/ifc_audio/humpback_e.mp3' %}">
                 </div>
                 <div class="hotspot" style="top:69.2%; left:26.6%; width:9.5%; height:16.4%;"
                      data-title="Mysticete"
@@ -186,7 +186,7 @@
                      data-infocard-audio="">
                 </div>
                 <div class="hotspot" style="top:5.0%; left:71.1%; width:3.3%; height:37.4%;"
-                     data-title="Windfarm"
+                     data-title="Offshore Construction"
                      data-audio="{% static 'learn_page/audio/windfarm.mp3' %}"
                      data-infocard="{% static 'learn_page/infocards/windfarm.png' %}"
                      data-infocard-audio="">
@@ -373,11 +373,5 @@
         }
     });
 
-    /* ============================
-        CLOSE MODAL
-    ============================ */
-
-    closeBtn.onclick = () => modal.style.display = "none";
-    window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
 </script>
 {% endblock %}

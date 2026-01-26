@@ -1,0 +1,35 @@
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 100px);
+    gap: 15px;
+}
+
+.icon {
+    text-align: center;
+    cursor: pointer;
+}
+
+.icon img {
+    width: 80px;
+    height: 80px;
+}
+
+#timeline {
+    position: relative;
+    height: 90px;
+    border: 2px solid #ccc;
+    background: #f8f9fa;
+}
+
+.clip-block {
+    position: absolute;
+    top: 30px;
+    height: 30px;
+    background: #0d6efd;
+    color: white;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: grab;
+    font-size: 12px;
+    white-space: nowrap;
+}
