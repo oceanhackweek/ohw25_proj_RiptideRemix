@@ -1,14 +1,18 @@
 {% extends "base.html" %}
+
 {% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static '/mixer.css' %}">
 <div class="container my-5">
     <h2 class="text-center mb-5 text-primary">Mixer</h2>
 
     <p class="fs-5">
-        Drift through our collection and discover glaciers groaning, icebergs cracking, whales singing their hearts out,
-        and even the occasional mischievous crocodile.
+        WRITE MIXER WELCOME TEXT HERE
     </p>
+
+    <!-- Thick horizontal line -->
+    <hr class="thick-hr">
 
     <div class="row">
         <!-- LEFT: Dropdowns -->
@@ -100,12 +104,25 @@
         </div>
     </div>
 
+    <!-- Thick horizontal line -->
+    <hr class="thick-hr">
+
     <!-- BOTTOM: Full song placeholder -->
     <div class="row mt-4">
         <div class="col-md-12">
             <h5>Your Song</h5>
-            <div id="fullSongContainer" style="border:1px solid #dee2e6; min-height:100px; border-radius:5px; padding:10px;">
-                Full song will appear here
+
+            <div id="songWrapper">
+                <div id="songGrid"></div>
+                <div id="songTracks"></div>
+            </div>
+
+            <div class="song-controls mt-2">
+                <button id="songPlay">▶ Play</button>
+                <button id="songStop">■ Stop</button>
+                <button id="deleteClip">🗑 Delete Selected</button>
+                <button id="clearSong">✖ Clear All</button>
+                <button id="exportWavBtn">⬇ Export</button>
             </div>
         </div>
     </div>
@@ -118,234 +135,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-// --- Controls ---
-const speedControl = document.getElementById('speed');
-const pitchControl = document.getElementById('frequency');
-const amplitudeControl = document.getElementById('amplitude');
-const loopsControl = document.getElementById('loops');
-const resetBtn = document.getElementById('resetBtn');
-
-const speedValue = document.getElementById('speedValue');
-const pitchValue = document.getElementById('pitchValue');
-const amplitudeValue = document.getElementById('amplitudeValue');
-
-const categorySelect = document.getElementById('categorySelect');
-const subcategorySelect = document.getElementById('subcategorySelect');
-const speciesSelect = document.getElementById('speciesSelect');
-const soundSelect = document.getElementById('soundSelect');
-const playButton = document.getElementById('playClip');
-
-const waveformContainer = document.getElementById('waveformContainer');
-const spectrogramContainer = document.getElementById('spectrogramContainer');
-
-let audioContext = null;
-let sourceNode = null;
-let gainNode = null;
-let audioBuffer = null;
-let isPlaying = false;
-
-// Load sound structure
-let soundStructure = {};
-try {
-    soundStructure = JSON.parse(document.getElementById('sound-structure-data').textContent);
-} catch (e) {
-    console.error("Failed to load sound structure", e);
-}
-
-// --- Audio Functions ---
-function initAudioContext() {
-    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    return audioContext;
-}
-
-function stopPlayback() {
-    if (sourceNode) {
-        try { sourceNode.stop(); } catch(e){}
-        sourceNode = null;
-    }
-    isPlaying = false;
-}
-
-function updateAudioSettings() {
-    if (!sourceNode || !gainNode) return;
-    sourceNode.playbackRate.value = parseFloat(speedControl.value);
-    gainNode.gain.value = parseFloat(amplitudeControl.value);
-
-    const pitchShiftHz = parseFloat(pitchControl.value);
-    const referenceFrequency = 440;
-    if (pitchShiftHz !== 0) {
-        const ratio = 1 + pitchShiftHz / referenceFrequency;
-        sourceNode.detune.value = 1200 * Math.log2(ratio);
-    }
-}
-
-async function playAudio(url) {
-    const ctx = initAudioContext();
-    stopPlayback();
-
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-
-    sourceNode = ctx.createBufferSource();
-    gainNode = ctx.createGain();
-    sourceNode.buffer = audioBuffer;
-
-    sourceNode.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    updateAudioSettings();
-
-    sourceNode.start();
-    isPlaying = true;
-
-    sourceNode.onended = () => { isPlaying = false; };
-}
-
-// --- Load Timeseries ---
-async function loadTimeseries(audioUrl) {
-    waveformContainer.innerHTML = `<div class="text-center py-3">Loading...</div>`;
-    try {
-        const response = await fetch(`/mixer/timeseries/?audio_url=${encodeURIComponent(audioUrl)}&speed=${speedControl.value}&pitch=${pitchControl.value}&amplitude=${amplitudeControl.value}`);
-        const data = await response.json();
-        if (data.success) {
-            waveformContainer.innerHTML = `<img src="data:image/png;base64,${data.timeseries}" class="img-fluid" style="border-radius:5px;">`;
-        } else {
-            waveformContainer.innerHTML = `<div class="alert alert-danger">Failed to generate waveform</div>`;
-        }
-    } catch (err) {
-        waveformContainer.innerHTML = `<div class="alert alert-danger">Error loading waveform</div>`;
-        console.error(err);
-    }
-}
-
-// --- Load Spectrogram ---
-async function loadSpectrogram(audioUrl) {
-    spectrogramContainer.innerHTML = `<div class="text-center py-3">Loading...</div>`;
-    try {
-        const response = await fetch(`/mixer/spectrogram/?audio_url=${encodeURIComponent(audioUrl)}&speed=${speedControl.value}&pitch=${pitchControl.value}&amplitude=${amplitudeControl.value}`);
-        const data = await response.json();
-        if (data.success) {
-            spectrogramContainer.innerHTML = `<img src="data:image/png;base64,${data.spectrogram}" class="img-fluid" style="border:1px solid #dee2e6; border-radius:5px;">`;
-        } else {
-            spectrogramContainer.innerHTML = `<div class="alert alert-danger">Failed to generate spectrogram</div>`;
-        }
-    } catch (err) {
-        spectrogramContainer.innerHTML = `<div class="alert alert-danger">Error loading spectrogram</div>`;
-        console.error(err);
-    }
-}
-
-// --- Update Previews ---
-function updatePreview() {
-    const url = soundSelect.value;
-    if (!url) return;
-    loadTimeseries(url);
-    loadSpectrogram(url);
-}
-
-// --- Dropdown Logic ---
-categorySelect.addEventListener('change', function() {
-    const cat = this.value;
-    subcategorySelect.innerHTML = '<option value="">Select a subcategory...</option>';
-    speciesSelect.innerHTML = '<option value="">Select a subcategory first...</option>';
-    soundSelect.innerHTML = '<option value="">Make selections above...</option>';
-    speciesSelect.disabled = true; soundSelect.disabled = true;
-
-    if (cat && soundStructure[cat]) {
-        subcategorySelect.disabled = false;
-        Object.keys(soundStructure[cat]).forEach(subcat => {
-            if (subcat !== '_files') {
-                const opt = document.createElement('option');
-                opt.value = subcat; opt.textContent = subcat;
-                subcategorySelect.appendChild(opt);
-            }
-        });
-        if (soundStructure[cat]._files) {
-            const opt = document.createElement('option');
-            opt.value = '_direct'; opt.textContent = 'Any/all';
-            subcategorySelect.appendChild(opt);
-        }
-    } else subcategorySelect.disabled = true;
-});
-
-subcategorySelect.addEventListener('change', function() {
-    const cat = categorySelect.value;
-    const sub = this.value;
-    speciesSelect.innerHTML = '<option value="">Select species/type...</option>';
-    soundSelect.innerHTML = '<option value="">Select a species first...</option>';
-    soundSelect.disabled = true;
-
-    if (cat && sub && soundStructure[cat][sub]) {
-        speciesSelect.disabled = false;
-        if (sub === '_direct') {
-            speciesSelect.disabled = true;
-            soundSelect.disabled = false;
-            soundStructure[cat]._files.forEach(f => {
-                const o = document.createElement('option'); o.value = f.url; o.textContent = f.display_name;
-                soundSelect.appendChild(o);
-            });
-        } else {
-            Object.keys(soundStructure[cat][sub]).forEach(spec => {
-                if (spec !== '_files') {
-                    const opt = document.createElement('option'); opt.value = spec; opt.textContent = spec;
-                    speciesSelect.appendChild(opt);
-                }
-            });
-            if (soundStructure[cat][sub]._files) {
-                const opt = document.createElement('option'); opt.value = '_direct'; opt.textContent = 'Any/all';
-                speciesSelect.appendChild(opt);
-            }
-        }
-    } else speciesSelect.disabled = true;
-});
-
-speciesSelect.addEventListener('change', function() {
-    const cat = categorySelect.value;
-    const sub = subcategorySelect.value;
-    const spec = this.value;
-    soundSelect.innerHTML = '<option value="">Select a sound...</option>';
-
-    if (cat && sub && spec) {
-        soundSelect.disabled = false;
-        if (spec === '_direct') {
-            (soundStructure[cat][sub]._files || []).forEach(f => {
-                const o = document.createElement('option'); o.value = f.url; o.textContent = f.display_name;
-                soundSelect.appendChild(o);
-            });
-        } else {
-            (soundStructure[cat][sub][spec] || []).forEach(f => {
-                const o = document.createElement('option'); o.value = f.url; o.textContent = f.display_name;
-                soundSelect.appendChild(o);
-            });
-        }
-    } else soundSelect.disabled = true;
-});
-
-// --- Event Listeners ---
-soundSelect.addEventListener('change', () => {
-    stopPlayback();
-    updatePreview();
-});
-
-[speedControl, pitchControl, amplitudeControl, loopsControl].forEach(el => {
-    el.addEventListener('input', () => {
-        speedValue.textContent = parseFloat(speedControl.value).toFixed(1) + 'x';
-        pitchValue.textContent = pitchControl.value + ' Hz';
-        amplitudeValue.textContent = parseFloat(amplitudeControl.value).toFixed(1) + 'x';
-        if (isPlaying) updateAudioSettings();
-        updatePreview();
-    });
-});
-
-playButton.addEventListener('click', () => playAudio(soundSelect.value));
-
-resetBtn.addEventListener('click', () => {
-    speedControl.value = 1; pitchControl.value = 0; amplitudeControl.value = 1; loopsControl.value = 1;
-    speedValue.textContent = '1.0x'; pitchValue.textContent = '0 Hz'; amplitudeValue.textContent = '1.0x';
-    if (isPlaying) updateAudioSettings();
-    updatePreview();
-});
-</script>
+<script src="{% static '/mixer.js' %}"></script>
 {% endblock extra_js %}

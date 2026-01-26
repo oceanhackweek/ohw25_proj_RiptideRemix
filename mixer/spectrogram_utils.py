@@ -205,3 +205,82 @@ def get_audio_file_path(url_path):
             return path
 
     raise FileNotFoundError(f"Audio file not found: {url_path}")
+
+def timeSeriesForSongSlider(audio_path, speed=1.0, pitch=0, amplitude=1.0, category=None):
+    """
+    Generate a small, clean, transparent waveform image (base64 PNG)
+    for use as a repeating tile in the song slider.
+    No axes, labels, or background.
+    """
+    CATEGORY_COLORS = {
+        'Anthropogenic': "#57f011",
+        'Environmental': "#0ebfff",
+        'Biological': "#edc526",
+    }
+    try:
+        # Resolve and load audio (reuse your existing logic)
+        if not os.path.exists(audio_path):
+            static_path = os.path.join(settings.BASE_DIR, 'static', audio_path.lstrip('/'))
+            if os.path.exists(static_path):
+                audio_path = static_path
+            else:
+                raise FileNotFoundError(f"Audio file not found: {audio_path}")
+
+        ext = os.path.splitext(audio_path)[1].lower()
+
+        if ext == '.mp3':
+            audio = AudioSegment.from_file(audio_path, format="mp3")
+            audio_data = np.array(audio.get_array_of_samples()).astype(np.float32)
+            audio_data /= np.iinfo(audio.array_type).max
+            if audio.channels > 1:
+                audio_data = audio_data.reshape((-1, audio.channels)).mean(axis=1)
+            sample_rate = audio.frame_rate
+            max_duration_sec = 10
+            if len(audio_data) / sample_rate > max_duration_sec:
+                audio_data = audio_data[: int(sample_rate * max_duration_sec)]
+        else:
+            sample_rate, audio_data = wavfile.read(audio_path)
+            if len(audio_data.shape) > 1:
+                audio_data = audio_data.mean(axis=1)
+            audio_data = audio_data.astype(np.float32)
+            audio_data /= np.max(np.abs(audio_data))
+
+        audio_data *= amplitude
+
+        if speed != 1.0:
+            new_length = int(len(audio_data) / speed)
+            indices = np.linspace(0, len(audio_data) - 1, new_length)
+            audio_data = np.interp(indices, np.arange(len(audio_data)), audio_data)
+
+        if pitch != 0:
+            audio_data = pitch_shift_hz(audio_data, sample_rate, pitch)
+
+        # Generate a small waveform snippet — e.g. first 0.5 seconds or so
+        snippet_duration = 0.5  # seconds
+        snippet_samples = int(snippet_duration * sample_rate)
+        snippet_data = audio_data[:snippet_samples]
+        times = np.arange(len(snippet_data)) / sample_rate
+
+        # Plot waveform with no axes, transparent background
+        line_color = CATEGORY_COLORS.get(category, '#000000')
+        fig = Figure(figsize=(3, 0.4), dpi=100)  # ~300x40 px
+        canvas = FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+
+        ax.plot(times, snippet_data, color=line_color, linewidth=1)
+        ax.set_axis_off()
+        fig.patch.set_alpha(0)
+        ax.set_facecolor('none')
+
+        fig.tight_layout(pad=0)
+
+        buffer = io.BytesIO()
+        canvas.print_png(buffer)
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+        return image_base64
+
+    except Exception as e:
+        print(f"Error generating timeseries for slider: {e}")
+        return None
