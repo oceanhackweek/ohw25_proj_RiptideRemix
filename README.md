@@ -1,20 +1,5 @@
-## <img src="https://github.com/KaseyMCastello/RiptideRemix/blob/main/Images/logo.png" alt="Logo" width="50" height="50">  RiptideRemix
+## <img src="https://github.com/oceanhackweek/ohw25_proj_RiptideRemix/blob/main/staticfiles/Images/logo.png" alt="Logo" width="50" height="50">  RiptideRemix
 This repository hosts the source code for an OceanHackWeek2025 project to allow for audio classificaiton and audio-synthesis of acoustic soundsources. 
-
-## Folder Structure**
-
-* `contributor_folders` (optional) Each contributor can make a folder here and 
-push their work here during the week. This will allow everyone to see each others work but prevent any merge conflicts. It is good if participants are new to collaborative coding.
-* `final_notebooks` When the team develops shared final notebooks, they 
-can be shared here. Make sure to communicate so that you limit merge conflicts.
-* `scripts` Shared scripts or functions can be added here.
-* `data` Shared dataset can be shared here. Note, do not put large datasets on GitHub. Speak to the organizers if you 
-need to share large datasets. Each team member can have a version of the dataset locally in the same folder to 
-preserve relative paths, but the dataset does not need to be added to git/GitHub (you can use `.gitignore`).
-
-You can start with a simple structure and as you progress you can refine it to contain more components. [Here](https://cookiecutter-data-science.drivendata.org/#directory-structure) is an example of a more elaborate structure for a data science project.
-
-## Planning
 
 ## Collaborators
 
@@ -32,7 +17,7 @@ You can start with a simple structure and as you progress you can refine it to c
 * Initial idea: "Acoustic mixer like GarageBand but pulling from oceanographic databases and processing data locally to pull out key sound bites."
 * Slack channel: ohw25_proj_riptideremix
 * Project google drive: [Add link](https://drive.google.com/drive/u/0/folders/1ZIcpZ1LWX_HtODz82-y-NJ0_Y0PhGG8u)
-* Final presentation: [Add link](https://docs.google.com/presentation/d/1SlbmSwNPd_eR4nL1RnYAX1_k1MJDHnvv7haCEPxDIH8/edit?slide=id.p#slide=id.p)
+* Presentation: [Add link](https://docs.google.com/presentation/d/1SlbmSwNPd_eR4nL1RnYAX1_k1MJDHnvv7haCEPxDIH8/edit?slide=id.p#slide=id.p)
 
 ## Background
 This project was driven from simple question: What if we could turn the rhythms of the Earth into music? Maybe having a toolbox like a GarageBand, combining acoustic data science, seismic waves, and adding a touch of creativity, we’ve built a framework for an interactive dashboard that invites users to explore, list and remixes the sounds of the ocean. Using real geophysical and marine datasets, anyone can create new compositions by dragging, adjusting, and layering natural sounds into immersive sonic experiences. The idea is both playful and educational: bridging the gap between raw scientific data and artistic expression, while providing users with meaningful insights into the Earth’s dynamic systems. This will also a great toolbox for science education especially for highschool.
@@ -72,10 +57,4 @@ In progress / Coming soon:
 * Open API for artists and developers to contribute sound packs and compositions.\
 * Full integration of station-event mapping with rose diagrams and waveform overlays.
 * Feature to stack and compare waveforms from multiple stations or events.
-
-## Results/Findings
-
-## Lessons Learned
-
-## References
 
