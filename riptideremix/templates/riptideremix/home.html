@@ -74,26 +74,26 @@
     <h3 class="mb-3">Latest Riptide Originals</h3>
     <div id="songsCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
       <div class="carousel-inner">
-        {% for i in "123456789" %}
+        {% for song in songs %}
           {% if forloop.first or forloop.counter0|divisibleby:5 %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <div class="d-flex justify-content-center gap-3">
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <div class="d-flex justify-content-center gap-3">
           {% endif %}
 
-              <div class="text-center" style="flex: 1 1 0;">
-                <a href="{% static 'Songs/my_final_song.wav' %}" target="_blank">
-                  <img src="{% static 'Images/Carousel/'|add:i|add:'.jpg' %}"
-                       class="d-block mb-2 mx-auto"
-                       style="height:120px; width:auto;"
-                       alt="Song {{ i }}">
-                  <h6 class="mt-2">Cool Song {{ i }}</h6>
-                  <small class="text-muted">by Author {{ i }}</small>
-                </a>
-              </div>
+                <div class="text-center" style="flex: 1 1 0;">
+                  <a href="{% static 'Songs/'|add:song.file %}" target="_blank">
+                    <img src="{% static 'Images/Carousel/'|add:song.img %}"
+                        class="d-block mb-2 mx-auto"
+                        style="height:120px; width:auto;"
+                        alt="{{ song.title }}">
+                    <h6 class="mt-2">{{ song.title }}</h6>
+                    <small class="text-muted">by {{ song.author }}</small>
+                  </a>
+                </div>
 
           {% if forloop.counter|divisibleby:5 or forloop.last %}
+              </div>
             </div>
-          </div>
           {% endif %}
         {% endfor %}
       </div>
@@ -115,6 +115,18 @@
     <h2>Mixer Section (Coming Soon)</h2>
     <p class="text-muted">This is where the mixer will appear.</p>
     <!-- Embed your notebook/mixer app here -->
+  </div>
+
+  <div class="modal fade" id="clippyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="clippyModalTitle"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="clippyModalBody"></div>
+      </div>
+    </div>
   </div>
 
 </div>
