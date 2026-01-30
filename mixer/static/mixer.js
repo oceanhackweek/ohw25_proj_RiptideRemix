@@ -283,9 +283,18 @@ addToMixBtn.addEventListener("click", async () => {
         .then(r => r.arrayBuffer())
         .then(b => ctx.decodeAudioData(b));
 
-    const baseDuration = buffer.duration;
+    const baseDuration = buffer.duration / +speedControl.value; // <-- divide by speed
     let loops = +loopsControl.value;
     let totalDuration = baseDuration * loops;
+
+    // Clip to max 60s
+    if (totalDuration > SONG_DURATION) {
+        loops = Math.floor(SONG_DURATION / baseDuration);   // full loops that fit
+        const remainder = SONG_DURATION - loops * baseDuration; // partial last loop
+        totalDuration = loops * baseDuration + remainder;
+    } else {
+        var remainder = 0;
+    }
 
     // Clip to max 60s
     if (totalDuration > SONG_DURATION) {
@@ -452,15 +461,20 @@ function enableDrag(el, clip) {
         };
     };
 }
+
 document.getElementById("songPlay").onclick = async () => {
+    // Stop any currently playing audio
+    songSources.forEach(src => { try { src.stop(); } catch {} });
+    clearInterval(playheadInterval);
+
     const ctx = initAudioContext();
     songSources = [];
 
     const playhead = document.getElementById("playhead");
     const startTime = ctx.currentTime;
-
     playhead.style.left = "24px";
 
+    // Move playhead visually
     playheadInterval = setInterval(() => {
         const elapsed = ctx.currentTime - startTime;
         const px = elapsed * PX_PER_SECOND;
@@ -473,12 +487,15 @@ document.getElementById("songPlay").onclick = async () => {
         playhead.style.left = (px + 24) + "px";
     }, 30);
 
+    // Play each clip
     for (const clip of songClips) {
         const buffer = await fetch(clip.url)
             .then(r => r.arrayBuffer())
             .then(b => ctx.decodeAudioData(b));
 
-        // Play full loops
+        const clipDuration = buffer.duration / clip.speed;
+
+        // Full loops
         for (let i = 0; i < clip.fullLoops; i++) {
             const src = ctx.createBufferSource();
             const gain = ctx.createGain();
@@ -489,12 +506,12 @@ document.getElementById("songPlay").onclick = async () => {
             gain.gain.value = clip.amplitude;
 
             src.connect(gain).connect(ctx.destination);
-            src.start(ctx.currentTime + clip.start + i * buffer.duration);
+            src.start(ctx.currentTime + clip.start + i * clipDuration);
 
             songSources.push(src);
         }
 
-        // Play remainder if exists
+        // Remainder
         if (clip.remainder > 0) {
             const src = ctx.createBufferSource();
             const gain = ctx.createGain();
@@ -505,16 +522,19 @@ document.getElementById("songPlay").onclick = async () => {
             gain.gain.value = clip.amplitude;
 
             src.connect(gain).connect(ctx.destination);
-            src.start(ctx.currentTime + clip.start + clip.fullLoops * buffer.duration, 0, clip.remainder);
+            src.start(ctx.currentTime + clip.start + clip.fullLoops * clipDuration, 0, clip.remainder);
 
             songSources.push(src);
         }
     }
 };
+
+
 function selectClip(id) {
     selectedClipId = selectedClipId === id ? null : id;
     renderSong();
 }
+
 document.getElementById("songStop").onclick = () => {
     songSources.forEach(src => {
         try { src.stop(); } catch {}
@@ -530,7 +550,12 @@ document.getElementById("deleteClip").onclick = () => {
     selectedClipId = null;
     renderSong();
 };
+
 document.getElementById("clearSong").onclick = () => {
+    songSources.forEach(src => {
+        try { src.stop(); } catch {}
+    });
+    clearInterval(playheadInterval);
     songClips = [];
     renderSong();
 };
@@ -605,6 +630,8 @@ async function exportMixAsWav() {
             .then(r => r.arrayBuffer())
             .then(b => ctx.decodeAudioData(b));
 
+        const clipDuration = buffer.duration / clip.speed; // <-- adjust for speed
+
         // Full loops
         for (let i = 0; i < clip.fullLoops; i++) {
             const source = ctx.createBufferSource();
@@ -616,7 +643,7 @@ async function exportMixAsWav() {
             gainNode.gain.value = clip.amplitude;
 
             source.connect(gainNode).connect(ctx.destination);
-            source.start(clip.start + i * buffer.duration);
+            source.start(clip.start + i * clipDuration);
         }
 
         // Remainder
@@ -630,7 +657,7 @@ async function exportMixAsWav() {
             gainNode.gain.value = clip.amplitude;
 
             source.connect(gainNode).connect(ctx.destination);
-            source.start(clip.start + clip.fullLoops * buffer.duration, 0, clip.remainder);
+            source.start(clip.start + clip.fullLoops * clipDuration, 0, clip.remainder);
         }
     }
 
