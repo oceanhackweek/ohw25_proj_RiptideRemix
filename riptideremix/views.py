@@ -10,7 +10,7 @@ class HomeView(TemplateView):
         context['songs'] = [
             {"file": "my_final_song.wav", "img": "1.jpg", "title": "Our First Song", "author": "The Riptide Team"},
             {"file": "kasey_song.wav", "img": "2.jpg", "title": "Crush Depth", "author": "Kasey C."},
-            {"file": "my_final_song.wav", "img": "1.jpg", "title": "Cool Song 3", "author": "The Riptide Team"},
+            {"file": "elliot_song.wav", "img": "1.jpg", "title": "Airgunz", "author": "Elliot C."},
             {"file": "my_final_song.wav", "img": "1.jpg", "title": "Cool Song 4", "author": "The Riptide Team"},
             {"file": "my_final_song.wav", "img": "1.jpg", "title": "Cool Song 5", "author": "The Riptide Team"},
             {"file": "my_final_song.wav", "img": "1.jpg", "title": "Cool Song 6", "author": "The Riptide Team"},
