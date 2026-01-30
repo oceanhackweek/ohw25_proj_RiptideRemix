@@ -159,3 +159,21 @@
     font-size: 0.9rem;
     cursor: pointer;
 }
+
+.clippy-helper {
+    position: absolute;
+    bottom: 4px;       /* a little padding from the corner */
+    right: 4px;
+    width: auto !important;  
+    height: 60px !important;     /* tiny icon */
+    cursor: pointer;
+    z-index: 10;
+}
+
+.control-clippy {
+    max-height: 30px;   /* small, readable next to sliders */
+    width: auto;
+    cursor: pointer;
+    flex-shrink: 0;     /* don't shrink in flex layout */
+}
+

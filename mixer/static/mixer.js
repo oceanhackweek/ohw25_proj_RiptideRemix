@@ -49,6 +49,7 @@ function initAudioContext() {
     if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
     return audioContext;
 }
+
 function resolveIconPath(clip) {
     const base = "/static/icons";
     const { category, subcategory, species } = clip;
@@ -643,3 +644,112 @@ async function exportMixAsWav() {
     a.click();
     URL.revokeObjectURL(url);
 }
+
+
+
+//CLIPPY HELPERS
+const clippyData = {
+    waveform: {
+        title: "Waveform",
+        blurb: `All sounds in the ocean travel as waves through the water. It starts when something like a whale or a boat creates a vibration that increases local 
+        pressure. That pressure increase and subsequent decrease moves outward, passing from molecule to molecule, spreading across the ocean as a traveling wave 
+        that carries the sound far from its source.Here, you can see what we call a waveform in the image. A waveform is a time-series plot showing how a sound changes 
+        over time. The x-axis represents time, and the y-axis represents the sound’s amplitude, or strength.
+        Peaks in the waveform occur when water pressure is high, and dips occur when it’s low. These pressure changes travel through the ocean and reach our sensors. 
+        In general, a larger amplitude means a louder sound, and a faster wave (more waves close together) corresponds to a higher pitch. You can see each of these 
+        features in the image below:`,
+        staticFile: "{% static 'Clippy_support/timeseries.jpg' %}" 
+    },
+    spectrogram: {
+        title: "Spectrogram",
+        blurb: ` A spectrogram is a tool scientists use to see how a sound changes over time. In the plot, time runs along the horizontal 
+        axis and frequency along the vertical axis. Colors show the amplitude, or strength, of the sound at each frequency and moment. 
+        This creates a visual map of the sound, helping us identify different sources in the underwater soundscape. In the example below, 
+        you can see an orca singing: his song rises and falls in frequency and amplitude, creating the flowing patterns you see.`,
+        staticFile: "{% static 'Clippy_support/spectrogram.jpg' %}" 
+    },
+    clippyspeed: {
+        title: "Frequency",
+        blurb: `Frequency tells us how fast a sound wave vibrates. Higher frequencies mean the sound wiggles more times per second than lower frequencies.
+         On a waveform, you can see this by how close together the peaks and dips are. If you listen closely, you will hear this in your everyday life.
+          A common low frequency sound you might know is a thunder clap. A common high frequency sound you might know is a firetruck siren.`,
+        staticFile: "{% static 'Clippy_support/freq.jpg' %}"
+    },
+    clippypitch: {
+        title: "Pitch",
+        blurb: `What scientists think of as frequency you probably hear as pitch. Pitch is how high or low a sound seems to your ears. 
+        A bird’s song might have a high pitch, while a drumbeat has a low pitch. Keep in mind that pitch is human-specific, so a sound 
+        you hear one way, like a crashing wave, might be perceived differently by a marine mammal.`, 
+        staticFile: "{% static 'Clippy_support/freq.jpg' %}"
+    },
+    clippyamplitude: {
+        title: "Amplitude",
+        blurb: `What scientists call amplitude is what you probably think of as loudness. Sounds with higher amplitude will seem louder, 
+        while those with lower amplitude will seem quieter. On a waveform, taller peaks indicate higher amplitude, and shorter peaks indicate 
+        lower amplitude. Scientists usually measure amplitude in decibels (dB). Humans can hear sounds as soft as 0 dB, and prolonged 
+        exposure to sounds above 70 dB can damage our ears. Do you think marine mammals experience loudness the same way we do?`, 
+        staticFile: "{% static 'Clippy_support/amplitude.jpg' %}"
+    },
+    clippyloops: {
+        title: "Repeated Signals",
+        blurb: `Many baleen whales sing the same songs over and over again in search of love. Scientists study repeating signals like this
+        to understand communication patterns in marine mammals. In the mixer, you can do this too by looping your signal.`,
+    }
+};
+
+document.querySelectorAll(".clippy-helper").forEach(el => {
+    el.addEventListener("click", async () => {
+        const id = el.id; // 'waveform' or 'spectrogram'
+        const modalEl = document.getElementById("previewClippyModal");
+        const modal = new bootstrap.Modal(modalEl);
+
+        // Set title from clippyData
+        document.getElementById("previewClippyTitle").textContent = clippyData[id].title;
+
+        // Try loading static file if it exists
+        const filePath = clippyStaticFiles[id];
+        const bodyEl = document.getElementById("previewClippyBody");
+
+        if (filePath) {
+            bodyEl.innerHTML = `
+                <p>${clippyData[id].blurb}</p>
+                <div class="text-center">
+                    <img src="${filePath}" class="img-fluid mt-3" 
+                        style="border-radius:5px; max-height:300px; width:auto;">
+                </div>
+            `;
+        } else {
+            bodyEl.innerHTML = `<p>${clippyData[id].blurb}</p>`;
+        }
+
+        modal.show();
+    });
+});
+document.querySelectorAll(".control-clippy").forEach(el => {
+    el.addEventListener("click", async () => {
+        const id = el.id; // 'waveform' or 'spectrogram'
+        const modalEl = document.getElementById("previewClippyModal");
+        const modal = new bootstrap.Modal(modalEl);
+
+        // Set title from clippyData
+        document.getElementById("previewClippyTitle").textContent = clippyData[id].title;
+
+        // Try loading static file if it exists
+        const filePath = clippyStaticFiles[id];
+        const bodyEl = document.getElementById("previewClippyBody");
+
+        if (filePath) {
+            bodyEl.innerHTML = `
+                <p>${clippyData[id].blurb}</p>
+                <div class="text-center">
+                    <img src="${filePath}" class="img-fluid mt-3" 
+                        style="border-radius:5px; max-height:300px; width:auto;">
+                </div>
+            `;
+        } else {
+            bodyEl.innerHTML = `<p>${clippyData[id].blurb}</p>`;
+        }
+
+        modal.show();
+    });
+});
