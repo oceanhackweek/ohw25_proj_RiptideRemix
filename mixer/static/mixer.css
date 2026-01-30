@@ -160,20 +160,35 @@
     cursor: pointer;
 }
 
+/* Waveform / Spectrogram corner clippies */
 .clippy-helper {
     position: absolute;
-    bottom: 4px;       /* a little padding from the corner */
+    bottom: 4px;
     right: 4px;
-    width: auto !important;  
-    height: 60px !important;     /* tiny icon */
+
+    width: 48px !important;
+    height: 48px !important;
+
+    max-width: 48px !important;
+    max-height: 48px !important;
+
+    object-fit: contain;
     cursor: pointer;
     z-index: 10;
 }
 
+/* Slider/control clippies */
 .control-clippy {
-    max-height: 30px;   /* small, readable next to sliders */
-    width: auto;
+    width: 28px !important;
+    height: 28px !important;
+
+    max-width: 28px !important;
+    max-height: 28px !important;
+
+    object-fit: contain;
     cursor: pointer;
-    flex-shrink: 0;     /* don't shrink in flex layout */
+    flex-shrink: 0;
 }
+
+
 
