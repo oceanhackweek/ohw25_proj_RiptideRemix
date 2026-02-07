@@ -381,23 +381,25 @@ async function renderSong() {
         if (clip.id === selectedClipId) el.classList.add("selected");
 
         el.style.left = (clip.start * PX_PER_SECOND + 24) + "px";
-        el.style.width = (clip.duration * PX_PER_SECOND) + "px";
-        el.dataset.id = clip.id;
-        const waveformColor = categoryColors[clip.category] || "#000000";
-        
+
+        // Scale width relative to timeline container
+        const clipWidthPx = (clip.duration / SONG_DURATION) * songWrapper.clientWidth;
+        el.style.width = clipWidthPx + "px";
+
+        // Mask the waveform to fill the div
         el.innerHTML = `
-            <div class="clip-icon">
-                <img src="${resolveIconPath(clip)}" />
-            </div>
-            <div class="clip-waveform" style="
-                background-color: ${waveformColor};
-                -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-                mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-                mask-repeat: repeat-x;
-                mask-size: auto 100%;
-                width: 100%;
-                height: 100%;
-            "></div>
+        <div class="clip-icon">
+            <img src="${resolveIconPath(clip)}" />
+        </div>
+        <div class="clip-waveform" style="
+            background-color: ${categoryColors[clip.category] || "#000"};
+            -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
+            mask-image: url('data:image/png;base64,${waveformData.timeseries}');
+            mask-repeat: repeat-x;
+            mask-size: 100% 100%;  /* Stretch waveform across div width */
+            width: 100%;
+            height: 100%;
+        "></div>
         `;
 
         enableDrag(el, clip);
@@ -483,8 +485,7 @@ document.getElementById("songPlay").onclick = async () => {
             clearInterval(playheadInterval);
             return;
         }
-
-        playhead.style.left = (px + 24) + "px";
+        playhead.style.left = (elapsed / SONG_DURATION) * songWrapper.clientWidth + "px";
     }, 30);
 
     // Play each clip
