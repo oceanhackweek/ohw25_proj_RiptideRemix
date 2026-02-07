@@ -11,7 +11,7 @@ class HomeView(TemplateView):
             {"file": "my_final_song.wav", "img": "1.jpg", "title": "Our First Song", "author": "The Riptide Team"},
             {"file": "kasey_song.wav", "img": "2.jpg", "title": "Crush Depth", "author": "Kasey C."},
             {"file": "elliot_song.wav", "img": "3.jpg", "title": "Airgunz", "author": "Elliot C."},
-            {"file": "my_final_song.wav", "img": "4.jpg", "title": "Cool Song 4", "author": "The Riptide Team"},
+            {"file": "Lil_Wayve.wav", "img": "4.jpg", "title": "Lil_Wayve", "author": "Aaron S."},
             {"file": "my_final_song.wav", "img": "5.jpg", "title": "Cool Song 5", "author": "The Riptide Team"},
             {"file": "my_final_song.wav", "img": "6.jpg", "title": "Cool Song 6", "author": "The Riptide Team"},
             {"file": "my_final_song.wav", "img": "7.jpg", "title": "Cool Song 7", "author": "The Riptide Team"},

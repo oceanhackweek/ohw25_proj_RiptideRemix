@@ -6,24 +6,37 @@ import os
 import json
 from django.conf import settings
 import traceback
+from django.http import FileResponse, Http404
+from django.views.decorators.http import require_GET
+from django.core.cache import cache
+import librosa
+import numpy as np
 
+CACHE_TIMEOUT = 60 * 60
 # Import spectrogram utilities
 try:
     from .spectrogram_utils import generate_spectrogram as generate_spectrogram_util
     from .spectrogram_utils import generate_timeseries as generate_timeseries_util
     from .spectrogram_utils import timeSeriesForSongSlider 
     from .spectrogram_utils import get_audio_file_path
+    from .spectrogram_utils import pitch_shift_hz
+    from .spectrogram_utils import load_clip_audio
+    from .spectrogram_utils import get_cached_audio
+    from .spectrogram_utils import safe_cache_key
+    
 
     SPECTROGRAM_AVAILABLE = True
 except ImportError as e:
     print(f"Warning: Could not import spectrogram utilities: {e}")
     SPECTROGRAM_AVAILABLE = False
     # Define placeholder functions
-    def generate_spectrogram_util(audio_path, speed, pitch, amplitude):
-        return None
+    def generate_spectrogram_util(*args, **kwargs): return None
+    def generate_timeseries_util(*args, **kwargs): return None
+    def timeSeriesForSongSlider(*args, **kwargs): return None
+    def get_audio_file_path(audio_url): raise FileNotFoundError(f"Spectrogram utilities not available: {audio_url}")
+    def load_clip_audio(*args, **kwargs): return None, None
+    def pitch_shift_hz(audio_data, sr, pitch): return audio_data
 
-    def get_audio_file_path(audio_url):
-        raise FileNotFoundError(f"Spectrogram utilities not available: {audio_url}")
 
 
 class MixerView(TemplateView):
@@ -137,6 +150,7 @@ class MixerView(TemplateView):
             print(f"Error processing species {species_name}: {e}")
 
 
+# --- Views ----------
 def generate_spectrogram_view(request):
     if not SPECTROGRAM_AVAILABLE:
         return JsonResponse({
@@ -157,39 +171,20 @@ def generate_spectrogram_view(request):
 
         try:
             # Get the actual file path
-            audio_path = get_audio_file_path(audio_url)
-            print(f"Found audio file at: {audio_path}")
-
-            # Generate the spectrogram using the UTILITY function
-            spec_base64 = generate_spectrogram_util(audio_path, speed, pitch, amplitude)
-
-            if spec_base64 is None:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Failed to generate spectrogram'
-                }, status=500)
-
-            return JsonResponse({
-                'success': True,
-                'spectrogram': spec_base64,
-                'audio_url': audio_url
-            })
-
-        except FileNotFoundError as e:
-            print(f"File not found error: {e}")
-            return JsonResponse({
-                'success': False,
-                'error': f"Audio file not found: {audio_url}"
-            }, status=404)
+            img_key = safe_cache_key("spec_img", audio_url, speed, pitch, amplitude)
+            cached_img = cache.get(img_key)
+            if cached_img:
+                return JsonResponse({'success': True, 'spectrogram': cached_img})
+            audio_data, sr = get_cached_audio(audio_url, speed, pitch, amplitude)
+            spec_base64 = generate_spectrogram_util(audio_data, sr)
+            cache.set(img_key, spec_base64, CACHE_TIMEOUT)
+            print(f"Found audio file at: {audio_url}")
+            return JsonResponse({'success': True, 'spectrogram': spec_base64, 'audio_url': audio_url})
+        except FileNotFoundError:
+            return JsonResponse({'success': False, 'error': f"Audio file not found: {audio_url}"}, status=404)
         except Exception as e:
-            print(f"Unexpected error: {e}")
             traceback.print_exc()
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            }, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def spectrogram_view(request):
     # just an alias for generate_spectrogram_view
@@ -214,47 +209,26 @@ def generate_timeseries_view(request):
             return JsonResponse({'error': 'No audio URL provided'}, status=400)
 
         try:
-            # Get the actual file path
-            audio_path = get_audio_file_path(audio_url)
-            print(f"Found audio file at: {audio_path}")
-
+            img_key = safe_cache_key("ts_img", audio_url, speed, pitch, amplitude)
+            cached_img = cache.get(img_key)
+            if cached_img:
+                return JsonResponse({'success': True, 'timeseries': cached_img})
+            # If we haven't cached the timeseries before, get the actual data
+            audio_data, sr = get_cached_audio(audio_url, speed, pitch, amplitude)
+            print(f"Found audio file at: {audio_url}")
             # Generate the waveform (timeseries) using the UTILITY function
-            ts_base64 = generate_timeseries_util(audio_path, speed, pitch, amplitude)
-
-            if ts_base64 is None:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Failed to generate timeseries'
-                }, status=500)
-
-            return JsonResponse({
-                'success': True,
-                'timeseries': ts_base64,
-                'audio_url': audio_url
-            })
-
-        except FileNotFoundError as e:
-            print(f"File not found error: {e}")
-            return JsonResponse({
-                'success': False,
-                'error': f"Audio file not found: {audio_url}"
-            }, status=404)
+            ts_base64 = generate_timeseries_util(audio_data, sr)
+            cache.set(img_key, ts_base64, CACHE_TIMEOUT)
+            return JsonResponse({'success': True, 'timeseries': ts_base64, 'audio_url': audio_url})
+        except FileNotFoundError:
+            return JsonResponse({'success': False, 'error': f"Audio file not found: {audio_url}"}, status=404)
         except Exception as e:
-            print(f"Unexpected error: {e}")
             traceback.print_exc()
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            }, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def timeseries_view(request):
     # alias
     return generate_timeseries_view(request)
-
-from django.views.decorators.http import require_GET
 
 def generate_timeseries_for_song_slider_view(request):
     if not SPECTROGRAM_AVAILABLE:
@@ -276,41 +250,16 @@ def generate_timeseries_for_song_slider_view(request):
             return JsonResponse({'error': 'No audio URL provided'}, status=400)
 
         try:
-            # Get the actual file path
-            audio_path = get_audio_file_path(audio_url)
-            print(f"Found audio file at: {audio_path}")
-
-            # Generate the waveform (timeseries) using the UTILITY function
-            ts_base64 = timeSeriesForSongSlider(audio_path, speed, pitch, amplitude, category)
-
-            if ts_base64 is None:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Failed to generate timeseries'
-                }, status=500)
-
-            return JsonResponse({
-                'success': True,
-                'timeseries': ts_base64,
-                'audio_url': audio_url
-            })
-
-        except FileNotFoundError as e:
-            print(f"File not found error: {e}")
-            return JsonResponse({
-                'success': False,
-                'error': f"Audio file not found: {audio_url}"
-            }, status=404)
+            # Get the actual audio data
+            audio_data, sr = get_cached_audio(audio_url, speed, pitch, amplitude)
+            print(f"Found audio file at: {audio_url}")
+            ts_base64 = timeSeriesForSongSlider(audio_data, sr, category)
+            return JsonResponse({'success': True, 'timeseries': ts_base64, 'audio_url': audio_url})
+        except FileNotFoundError:
+            return JsonResponse({'success': False, 'error': f"Audio file not found: {audio_url}"}, status=404)
         except Exception as e:
-            print(f"Unexpected error: {e}")
             traceback.print_exc()
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            }, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def timeseriesSlider_view(request):
     # alias

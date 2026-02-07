@@ -5,10 +5,8 @@
 {% block content %}
 <div class="container my-5">
 
-  <!-- WRAPPER: Welcome + Carousel -->
+  <!-- 1. Welcome Card -->
   <div id="welcomeSection">
-
-    <!-- 1. Welcome Card -->
     <div class="text-center p-5 bg-light rounded shadow-sm mb-5">
       <h1 class="mb-4">Discover the Ocean Through Sound</h1>
       <p class="lead mb-4">
@@ -31,40 +29,54 @@
         <div class="modal-content">
           <div class="modal-body">
             <p>
-              In the ocean, thousands of noises occur every day, coming together to form a rich and complex soundscape.
-              Whales sing and click, fish chorus in search of mates, humans add noise through boats and machinery,
-              and earthquakes, wind, and waves fill the water with a wide spectrum of natural sound.
+              Welcome to Riptide Remix!<br><br>
+              Thank you for visiting our site. Here, you can explore the fascinating world of oceanic 
+              sound and discover how marine life experiences the underwater world every day. 
+              Our team is passionate about the ocean and all its acoustic properties, and we hope you will be too.
             </p>
-            <p>
-              At <strong>Riptide Remix</strong>, you can explore this ocean soundscape in detail.
-              Select different acoustic sources and analyze them however you like.
-              Adjust their speed, change their amplitude, and layer them to hear how marine life experiences
-              the underwater world every day.
-            </p>
-            <p>
-              Try imagining you’re a baleen whale calling for a mate. Does your signal make it to your intended partner as you add additional noises? <br>
-              Now, try imagining you’re a DJ. How can you mix the sound to make the best beat? <br><br>
-              No matter how you interact, we hope Riptide Remix is a space to discover, experiment, and learn about the ocean through sound.
-            </p>
-
             <hr>
 
             <!-- Clippy Inline -->
-            <div class="text-center mt-3">
+            <div class="text-left mt-3">
               <p>
                 Our friend <strong>Clippy</strong>
                 <img src="{% static 'Images/Clippy/base.png' %}" alt="Clippy Small" style="height:40px; width:auto; vertical-align:middle; margin:0 5px;">
-                is here to help you learn. <br>
-                Click him at any time for detailed explanations of the acoustic controls and the science behind the sounds you’re exploring.
+                is excited to guide you through the science behind the sounds you’re exploring!
+                Throughout the site, you’ll see Clippy next to items you can learn more about.
+                Click him for detailed explanations and helpful tips.
               </p>
-              <p>Click Clippy when you're ready to start your first mix!</p>
+            </div>
+            <hr>
+
+            <!-- New Acoustician -->
+            <div class="d-flex align-items-start gap-3 mt-3">
               <img
-                src="{% static 'Images/Clippy/ready.png' %}"
-                id="clippyClose"
+                src="{% static 'Images/Clippy/soundFromWhere.png' %}"
                 alt="Clippy Helper"
                 style="height:120px; width:auto; cursor:pointer;"
-                data-url="{% url 'mixer' %}">
+                onclick="window.location.href='{% url 'education' %}'">
+              <div>
+                <p><strong>New Acoustician</strong></p>
+                <p>If you're new to bioacoustics, start on the <strong>"Learn More"</strong> page. Explore sound options, listen to samples, and get a quick introduction to why scientists focus on each species.</p>
+                <p>Click Clippy to go to the Learning Module now. Once you’re familiar with the sounds, select 
+                  <strong>“Mix Sounds”</strong> in the menu to start layering them together.</p>
+              </div>
             </div>
+            <hr>
+            <!-- Experienced Scientist -->
+            <div class="d-flex align-items-start gap-3 mt-3">
+              <img
+                src="{% static 'Images/Clippy/ready.png' %}"
+                alt="Clippy Helper"
+                style="height:120px; width:auto; cursor:pointer;"
+                onclick="window.location.href='{% url 'mixer' %}'">
+              <div>
+                <p><strong>Experienced Scientist</strong></p>
+                <p>If you're comfortable with bioacoustics, start here! Adjust the acoustic properties of your sounds and explore how they interact. Learn more about the ocean’s soundscape or just have fun creating your own compositions.</p>
+                <p>Click Clippy to go to the Mixing Module now.</p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -81,15 +93,22 @@
           {% endif %}
 
                 <div class="text-center" style="flex: 1 1 0;">
-                  <a href="{% static 'Songs/'|add:song.file %}" target="_blank">
+                  <a href="javascript:void(0);"
+                    class="song-trigger"
+                    data-title="{{ song.title }}"
+                    data-author="{{ song.author }}"
+                    data-src="{% static 'Songs/'|add:song.file %}"
+                    data-image="{% static 'Images/Carousel/'|add:song.img %}">
+
                     <img src="{% static 'Images/Carousel/'|add:song.img %}"
                         class="d-block mb-2 mx-auto"
-                        style="height:120px; width:auto;"
-                        alt="{{ song.title }}">
+                        style="height:120px; width:auto;">
+
                     <h6 class="mt-2">{{ song.title }}</h6>
                     <small class="text-muted">by {{ song.author }}</small>
                   </a>
                 </div>
+
 
           {% if forloop.counter|divisibleby:5 or forloop.last %}
               </div>
@@ -107,24 +126,21 @@
         <span class="visually-hidden">Next</span>
       </button>
     </div>
-
   </div> <!-- END welcomeSection -->
 
-  <!-- 4. Mixer App Section -->
-  <div id="appsSection" class="text-center my-5" style="display:none;">
-    <h2>Mixer Section (Coming Soon)</h2>
-    <p class="text-muted">This is where the mixer will appear.</p>
-    <!-- Embed your notebook/mixer app here -->
-  </div>
-
-  <div class="modal fade" id="clippyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+  <!-- Audio Modal -->
+  <div class="modal fade" id="audioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="clippyModalTitle"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-body text-center">
+          <h5 id="audioModalTitle" class="fw-bold mb-1"></h5>
+          <small id="audioModalAuthor" class="text-muted mb-3 d-block"></small>
+          <img id="audioModalImage" src="" alt="Song Image" class="img-fluid mb-3" style="max-height:250px;">
+          <audio controls style="width:100%;" id="modalAudio">
+            <source id="modalAudioSource" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
         </div>
-        <div class="modal-body" id="clippyModalBody"></div>
       </div>
     </div>
   </div>
@@ -135,26 +151,42 @@
 {% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const clippy = document.getElementById("clippyClose");
-  const welcomeModal = document.getElementById("welcomeModal");
-  const modal = bootstrap.Modal.getOrCreateInstance(welcomeModal);
-  const welcomeSection = document.getElementById("welcomeSection");
-  const appsSection = document.getElementById("appsSection");
+  const audioModalEl = document.getElementById("audioModal");
+  const audioModal = new bootstrap.Modal(audioModalEl);
 
-  // Clippy closes modal and launches mixer
-  clippy.addEventListener("click", function () {
-  window.location.href = clippy.dataset.url;
+  const modalTitle = document.getElementById("audioModalTitle");
+  const modalAuthor = document.getElementById("audioModalAuthor");
+  const modalImage = document.getElementById("audioModalImage");
+  const modalAudio = document.getElementById("modalAudio");
+  const modalSource = document.getElementById("modalAudioSource");
+
+  document.querySelectorAll(".song-trigger").forEach(el => {
+    el.addEventListener("click", () => {
+      modalTitle.textContent = el.dataset.title;
+      modalAuthor.textContent = "by " + el.dataset.author;
+      modalImage.src = el.dataset.image;
+      modalSource.src = el.dataset.src;
+
+      modalAudio.load();
+      modalAudio.play();
+      audioModal.show();
+    });
   });
 
-  // Experienced Mixer: skip modal, show mixer
-  const experiencedBtn = document.getElementById("experiencedBtn");
-  experiencedBtn.addEventListener("click", function () {
-    welcomeSection.style.display = "none";
-    appsSection.style.display = "block";
+  // Close modal when audio is paused
+  modalAudio.addEventListener("pause", () => {
+    audioModal.hide();
+  });
+
+  // Reset audio when modal closes
+  audioModalEl.addEventListener("hidden.bs.modal", () => {
+    modalAudio.pause();
+    modalAudio.currentTime = 0;
   });
 });
 </script>
 {% endblock %}
+
 
 {% block extra_css %}
 <style>

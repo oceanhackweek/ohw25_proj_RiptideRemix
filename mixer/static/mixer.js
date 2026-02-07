@@ -366,102 +366,66 @@ async function renderSong() {
         const track = document.createElement("div");
         track.className = "song-track";
 
+        // Clip icon
         const icon = document.createElement("div");
         icon.className = "track-icon";
-        icon.innerHTML = `<img src="/static/icons/${clip.category}.png">`;
+        icon.innerHTML = `<img src="${resolveIconPath(clip)}">`;
 
-        // Fetch waveform base64 for one loop
+        // Fetch waveform base64 for **one loop**
         const waveformData = await fetch(
-        `/mixer/timeseriesSlider/?audio_url=${encodeURIComponent(clip.url)}&speed=${clip.speed}&pitch=${clip.pitch}&amplitude=${clip.amplitude}&category=${clip.category}`
+            `/mixer/timeseriesSlider/?audio_url=${encodeURIComponent(clip.url)}&speed=${clip.speed}&pitch=${clip.pitch}&amplitude=${clip.amplitude}&category=${clip.category}`
         ).then(r => r.json());
-        
+
+        // Compute total width
+        const totalWidthPx = clip.duration * PX_PER_SECOND;
+        const singleLoopWidthPx = clip.baseDuration * PX_PER_SECOND;
+
+        // Build waveform HTML with one <img> per loop
+        let waveformHTML = "";
+        for (let i = 0; i < clip.fullLoops; i++) {
+            waveformHTML += `<img src="data:image/png;base64,${waveformData.timeseries}"
+                              style="height:100%; flex-shrink:0; width:${singleLoopWidthPx}px;">`;
+        }
+        if (clip.remainder > 0) {
+            const remainderWidthPx = clip.remainder * PX_PER_SECOND;
+            waveformHTML += `<img src="data:image/png;base64,${waveformData.timeseries}"
+                              style="height:100%; flex-shrink:0; width:${remainderWidthPx}px; object-fit:cover;">`;
+        }
+
+        // Clip element
         const el = document.createElement("div");
         el.className = "clip";
-        el.classList.add(clip.category);  // Add category as class for coloring
+        el.classList.add(clip.category);
         if (clip.id === selectedClipId) el.classList.add("selected");
 
         el.style.left = (clip.start * PX_PER_SECOND + 24) + "px";
-        el.style.width = (clip.duration * PX_PER_SECOND) + "px";
+        el.style.width = `${totalWidthPx}px`;
         el.dataset.id = clip.id;
-        const waveformColor = categoryColors[clip.category] || "#000000";
-        
+
         el.innerHTML = `
             <div class="clip-icon">
                 <img src="${resolveIconPath(clip)}" />
             </div>
-            <div class="clip-waveform" style="
-                background-color: ${waveformColor};
-                -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-                mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-                mask-repeat: repeat-x;
-                mask-size: auto 100%;
-                width: 100%;
-                height: 100%;
-            "></div>
+            <div class="clip-waveform-wrapper" style="display:flex; height:100%; width:100%; overflow:hidden;">
+                ${waveformHTML}
+            </div>
         `;
 
         enableDrag(el, clip);
         el.onclick = e => {
-            e.stopPropagation(); // don’t bubble into drag logic
+            e.stopPropagation();
             selectClip(clip.id);
         };
 
         track.append(el);
         container.appendChild(track);
-        
     }
+
     container.style.minWidth = (SONG_DURATION * PX_PER_SECOND + 48) + "px";
     resizeSongGrid();
 }
 
-function resizeSongGrid() {
-    const grid = document.getElementById("songGrid");
-    const tracksContainer = document.getElementById("songTracks");
-
-    // Minimum width to cover full 60s
-    const minWidth = SONG_DURATION * PX_PER_SECOND + 48; // +24px padding left + right
-    const contentWidth = tracksContainer.scrollWidth;
-
-    grid.style.width = Math.max(minWidth, contentWidth) + "px";
-    grid.style.height = tracksContainer.scrollHeight + "px";
-}
-
-function enableDrag(el, clip) {
-    el.onmousedown = e => {
-        e.preventDefault();
-
-        const startX = e.clientX;
-        const startLeftPx = el.offsetLeft;
-
-        const minLeftPx = 24;
-        const maxLeftPx =
-            24 + (SONG_DURATION - clip.duration) * PX_PER_SECOND;
-
-        document.onmousemove = ev => {
-            const dx = ev.clientX - startX;
-
-            let newLeftPx = startLeftPx + dx;
-            newLeftPx = Math.max(minLeftPx, Math.min(newLeftPx, maxLeftPx));
-
-            el.style.left = newLeftPx + "px";
-
-            // pixels → seconds
-            const startSeconds = (newLeftPx - 24) / PX_PER_SECOND;
-
-            // HARD clamp (this is the important part)
-            clip.start = Math.max(
-                0,
-                Math.min(startSeconds, SONG_DURATION - clip.duration)
-            );
-        };
-
-        document.onmouseup = () => {
-            document.onmousemove = null;
-            document.onmouseup = null;
-        };
-    };
-}
-
+// --- Playhead logic ---
 document.getElementById("songPlay").onclick = async () => {
     // Stop any currently playing audio
     songSources.forEach(src => { try { src.stop(); } catch {} });
@@ -476,7 +440,7 @@ document.getElementById("songPlay").onclick = async () => {
 
     // Move playhead visually
     playheadInterval = setInterval(() => {
-        const elapsed = ctx.currentTime - startTime;
+        const elapsed = ctx.currentTime - startTime; // real seconds
         const px = elapsed * PX_PER_SECOND;
 
         if (elapsed > SONG_DURATION) {
@@ -528,6 +492,55 @@ document.getElementById("songPlay").onclick = async () => {
         }
     }
 };
+
+function resizeSongGrid() {
+    const grid = document.getElementById("songGrid");
+    const tracksContainer = document.getElementById("songTracks");
+
+    // Minimum width to cover full 60s
+    const minWidth = SONG_DURATION * PX_PER_SECOND + 48; // +24px padding left + right
+    const contentWidth = tracksContainer.scrollWidth;
+
+    grid.style.width = Math.max(minWidth, contentWidth) + "px";
+    grid.style.height = tracksContainer.scrollHeight + "px";
+}
+
+function enableDrag(el, clip) {
+    el.onmousedown = e => {
+        e.preventDefault();
+
+        const startX = e.clientX;
+        const startLeftPx = el.offsetLeft;
+
+        const minLeftPx = 24;
+        const maxLeftPx =
+            24 + (SONG_DURATION - clip.duration) * PX_PER_SECOND;
+
+        document.onmousemove = ev => {
+            const dx = ev.clientX - startX;
+
+            let newLeftPx = startLeftPx + dx;
+            newLeftPx = Math.max(minLeftPx, Math.min(newLeftPx, maxLeftPx));
+
+            el.style.left = newLeftPx + "px";
+
+            // pixels → seconds
+            const startSeconds = (newLeftPx - 24) / PX_PER_SECOND;
+
+            // HARD clamp (this is the important part)
+            clip.start = Math.max(
+                0,
+                Math.min(startSeconds, SONG_DURATION - clip.duration)
+            );
+        };
+
+        document.onmouseup = () => {
+            document.onmousemove = null;
+            document.onmouseup = null;
+        };
+    };
+}
+
 
 
 function selectClip(id) {
@@ -614,6 +627,27 @@ function bufferToWavBlob(buffer) {
 
   return new Blob([bufferArray], { type: 'audio/wav' });
 }
+
+document.getElementById("copyClip").onclick = () => {
+    if (!selectedClipId) return;
+
+    const original = songClips.find(c => c.id === selectedClipId);
+    if (!original) return;
+
+    // Shallow clone + new ID
+    const copy = {
+        ...original,
+        id: crypto.randomUUID(),
+        start: Math.min(
+            original.start + 0.5, // offset by 0.5s so it’s visible
+            SONG_DURATION - original.duration
+        )
+    };
+
+    songClips.push(copy);
+    selectedClipId = copy.id;
+    renderSong();
+};
 
 async function exportMixAsWav() {
     if (!songClips.length) {
