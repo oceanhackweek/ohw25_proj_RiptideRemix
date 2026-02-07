@@ -10,15 +10,9 @@ from django.http import FileResponse, Http404
 from django.views.decorators.http import require_GET
 from django.core.cache import cache
 import librosa
-
 import numpy as np
 
-#Added Caching to speedup 
 CACHE_TIMEOUT = 60 * 60
-
-def get_cache_key(audio_path, speed, pitch, amplitude, mode):
-    return f"{mode}:{audio_path}:{speed}:{pitch}:{amplitude}"
-
 # Import spectrogram utilities
 try:
     from .spectrogram_utils import generate_spectrogram as generate_spectrogram_util
@@ -27,6 +21,8 @@ try:
     from .spectrogram_utils import get_audio_file_path
     from .spectrogram_utils import pitch_shift_hz
     from .spectrogram_utils import load_clip_audio
+    from .spectrogram_utils import get_cached_audio
+    from .spectrogram_utils import safe_cache_key
     
 
     SPECTROGRAM_AVAILABLE = True
@@ -41,32 +37,7 @@ except ImportError as e:
     def load_clip_audio(*args, **kwargs): return None, None
     def pitch_shift_hz(audio_data, sr, pitch): return audio_data
 
-#Enable caching of audio
-def get_cached_audio(audio_url, speed=1.0, pitch=0, amplitude=1.0):
-    """
-    Load and process audio once per request, cache it for reuse
-    """
-    key = f"audio:{audio_url}:{speed}:{pitch}:{amplitude}"
-    cached = cache.get(key)
-    if cached:
-        return cached  # (audio_data, sample_rate)
 
-    audio_path = get_audio_file_path(audio_url)
-    audio_data, sr = load_clip_audio(audio_path)
-
-    # Apply speed
-    if speed != 1.0:
-        audio_data = librosa.effects.time_stretch(audio_data, rate=speed)
-
-    # Apply pitch
-    if pitch != 0:
-        audio_data = pitch_shift_hz(audio_data, sr, pitch)
-
-    # Apply amplitude
-    audio_data *= amplitude
-
-    cache.set(key, (audio_data, sr), CACHE_TIMEOUT)
-    return audio_data, sr
 
 class MixerView(TemplateView):
     template_name = "mixer/mixer.html"
@@ -200,8 +171,13 @@ def generate_spectrogram_view(request):
 
         try:
             # Get the actual file path
+            img_key = safe_cache_key("spec_img", audio_url, speed, pitch, amplitude)
+            cached_img = cache.get(img_key)
+            if cached_img:
+                return JsonResponse({'success': True, 'spectrogram': cached_img})
             audio_data, sr = get_cached_audio(audio_url, speed, pitch, amplitude)
             spec_base64 = generate_spectrogram_util(audio_data, sr)
+            cache.set(img_key, spec_base64, CACHE_TIMEOUT)
             print(f"Found audio file at: {audio_url}")
             return JsonResponse({'success': True, 'spectrogram': spec_base64, 'audio_url': audio_url})
         except FileNotFoundError:
@@ -233,11 +209,16 @@ def generate_timeseries_view(request):
             return JsonResponse({'error': 'No audio URL provided'}, status=400)
 
         try:
-            # Get the actual data
+            img_key = safe_cache_key("ts_img", audio_url, speed, pitch, amplitude)
+            cached_img = cache.get(img_key)
+            if cached_img:
+                return JsonResponse({'success': True, 'timeseries': cached_img})
+            # If we haven't cached the timeseries before, get the actual data
             audio_data, sr = get_cached_audio(audio_url, speed, pitch, amplitude)
             print(f"Found audio file at: {audio_url}")
             # Generate the waveform (timeseries) using the UTILITY function
             ts_base64 = generate_timeseries_util(audio_data, sr)
+            cache.set(img_key, ts_base64, CACHE_TIMEOUT)
             return JsonResponse({'success': True, 'timeseries': ts_base64, 'audio_url': audio_url})
         except FileNotFoundError:
             return JsonResponse({'success': False, 'error': f"Audio file not found: {audio_url}"}, status=404)

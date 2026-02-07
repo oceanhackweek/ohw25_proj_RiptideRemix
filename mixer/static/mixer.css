@@ -117,15 +117,24 @@
     display: block;
     pointer-events: none;
 }
+
 .clip-waveform {
-  background-color: var(--waveform-color);
-  -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-  mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-  mask-repeat: repeat-x;
-  mask-size: auto 100%;
-  width: 100%;
-  height: 100%;
+    background-color: #57f011; /* or category color */
+    
+    -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
+    mask-image: url('data:image/png;base64,${waveformData.timeseries}');
+
+    -webkit-mask-repeat: repeat-x; /* repeat single loop */
+    mask-repeat: repeat-x;
+
+    -webkit-mask-size: ${singleLoopWidthPx}px 100%; /* size of one loop */
+    mask-size: ${singleLoopWidthPx}px 100%;
+
+    width: ${containerWidthPx}px; /* total width = loops × PX_PER_SECOND */
+    height: 100%;
 }
+
+
 
 /* category colors */
 .clip.biological {

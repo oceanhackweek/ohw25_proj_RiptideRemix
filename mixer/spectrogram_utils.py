@@ -12,6 +12,9 @@ from django.conf import settings  # assuming you’re using Django
 import librosa
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from django.core.cache import cache
+import hashlib
+from PIL import Image
 
 
 def generate_spectrogram(audio_data, sr):
@@ -142,9 +145,9 @@ def timeSeriesForSongSlider(audio_data, sr, category=None):
 
         # Plot waveform with no axes, transparent background
         line_color = CATEGORY_COLORS.get(category, '#000000')
-        fig = Figure(figsize=(len(audio_data)/sr, 0.4), dpi=100)  # ~300x40 px
+        fig = Figure(figsize=(3, 0.4), dpi=100)  # ~300x40 px
         canvas = FigureCanvas(fig)
-        ax = fig.add_subplot(111)
+        ax = fig.add_axes([0, 0, 1, 1])
 
         ax.plot(times, audio_data, color=line_color, linewidth=1)
         ax.set_axis_off()
@@ -156,9 +159,28 @@ def timeSeriesForSongSlider(audio_data, sr, category=None):
         buffer = io.BytesIO()
         canvas.print_png(buffer)
         buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        buffer.seek(0)
+        img = Image.open(buffer).convert("RGBA")
 
+        data = np.array(img)
+        alpha = data[:, :, 3]
+
+        # Find non-transparent bounds
+        rows = np.where(alpha.max(axis=1) > 0)[0]
+        cols = np.where(alpha.max(axis=0) > 0)[0]
+
+        if rows.size and cols.size:
+            cropped = img.crop((cols[0], rows[0], cols[-1] + 1, rows[-1] + 1))
+        else:
+            cropped = img  # fallback
+
+        out = io.BytesIO()
+        cropped.save(out, format="PNG")
+        out.seek(0)
+
+        image_base64 = base64.b64encode(out.getvalue()).decode("utf-8")
         return image_base64
+
 
     except Exception as e:
         print(f"Error generating timeseries for slider: {e}")
@@ -169,10 +191,46 @@ def load_clip_audio(audio_path, max_duration=60):
     Load WAV or MP3 and return normalized float32 array and sample rate.
     Clip to max_duration (seconds).
     """
-    d, sr = librosa.load(audio_path, sr=None, mono=True)
+    d, sr = librosa.load(audio_path, sr=22050, mono=True)
     max_samples =  int(sr*max_duration)
     
     if len(d) > max_samples:
         d = d[:max_samples]
     
     return d, sr
+
+
+#Added Caching to speedup 
+CACHE_TIMEOUT = 60 * 60
+
+def safe_cache_key(prefix, *parts):
+    raw = "|".join(str(p) for p in parts)
+    digest = hashlib.md5(raw.encode()).hexdigest()
+    return f"{prefix}:{digest}"
+
+#Enable caching of audio
+def get_cached_audio(audio_url, speed=1.0, pitch=0, amplitude=1.0):
+    """
+    Load and process audio once per request, cache it for reuse
+    """
+    key = safe_cache_key("audio", audio_url, speed, pitch, amplitude)
+    cached = cache.get(key)
+    if cached:
+        return cached  # (audio_data, sample_rate)
+
+    audio_path = get_audio_file_path(audio_url)
+    audio_data, sr = load_clip_audio(audio_path)
+
+    # Apply speed
+    if speed != 1.0:
+        audio_data = librosa.effects.time_stretch(audio_data, rate=speed)
+
+    # Apply pitch
+    if pitch != 0:
+        audio_data = pitch_shift_hz(audio_data, sr, pitch)
+
+    # Apply amplitude
+    audio_data *= amplitude
+
+    cache.set(key, (audio_data, sr), CACHE_TIMEOUT)
+    return audio_data, sr

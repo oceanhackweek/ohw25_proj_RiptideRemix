@@ -366,55 +366,132 @@ async function renderSong() {
         const track = document.createElement("div");
         track.className = "song-track";
 
+        // Clip icon
         const icon = document.createElement("div");
         icon.className = "track-icon";
-        icon.innerHTML = `<img src="/static/icons/${clip.category}.png">`;
+        icon.innerHTML = `<img src="${resolveIconPath(clip)}">`;
 
-        // Fetch waveform base64 for one loop
+        // Fetch waveform base64 for **one loop**
         const waveformData = await fetch(
-        `/mixer/timeseriesSlider/?audio_url=${encodeURIComponent(clip.url)}&speed=${clip.speed}&pitch=${clip.pitch}&amplitude=${clip.amplitude}&category=${clip.category}`
+            `/mixer/timeseriesSlider/?audio_url=${encodeURIComponent(clip.url)}&speed=${clip.speed}&pitch=${clip.pitch}&amplitude=${clip.amplitude}&category=${clip.category}`
         ).then(r => r.json());
-        
+
+        // Compute total width
+        const totalWidthPx = clip.duration * PX_PER_SECOND;
+        const singleLoopWidthPx = clip.baseDuration * PX_PER_SECOND;
+
+        // Build waveform HTML with one <img> per loop
+        let waveformHTML = "";
+        for (let i = 0; i < clip.fullLoops; i++) {
+            waveformHTML += `<img src="data:image/png;base64,${waveformData.timeseries}"
+                              style="height:100%; flex-shrink:0; width:${singleLoopWidthPx}px;">`;
+        }
+        if (clip.remainder > 0) {
+            const remainderWidthPx = clip.remainder * PX_PER_SECOND;
+            waveformHTML += `<img src="data:image/png;base64,${waveformData.timeseries}"
+                              style="height:100%; flex-shrink:0; width:${remainderWidthPx}px; object-fit:cover;">`;
+        }
+
+        // Clip element
         const el = document.createElement("div");
         el.className = "clip";
-        el.classList.add(clip.category);  // Add category as class for coloring
+        el.classList.add(clip.category);
         if (clip.id === selectedClipId) el.classList.add("selected");
 
         el.style.left = (clip.start * PX_PER_SECOND + 24) + "px";
+        el.style.width = `${totalWidthPx}px`;
+        el.dataset.id = clip.id;
 
-        // Scale width relative to timeline container
-        const clipWidthPx = (clip.duration / SONG_DURATION) * songWrapper.clientWidth;
-        el.style.width = clipWidthPx + "px";
-
-        // Mask the waveform to fill the div
         el.innerHTML = `
-        <div class="clip-icon">
-            <img src="${resolveIconPath(clip)}" />
-        </div>
-        <div class="clip-waveform" style="
-            background-color: ${categoryColors[clip.category] || "#000"};
-            -webkit-mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-            mask-image: url('data:image/png;base64,${waveformData.timeseries}');
-            mask-repeat: repeat-x;
-            mask-size: 100% 100%;  /* Stretch waveform across div width */
-            width: 100%;
-            height: 100%;
-        "></div>
+            <div class="clip-icon">
+                <img src="${resolveIconPath(clip)}" />
+            </div>
+            <div class="clip-waveform-wrapper" style="display:flex; height:100%; width:100%; overflow:hidden;">
+                ${waveformHTML}
+            </div>
         `;
 
         enableDrag(el, clip);
         el.onclick = e => {
-            e.stopPropagation(); // don’t bubble into drag logic
+            e.stopPropagation();
             selectClip(clip.id);
         };
 
         track.append(el);
         container.appendChild(track);
-        
     }
+
     container.style.minWidth = (SONG_DURATION * PX_PER_SECOND + 48) + "px";
     resizeSongGrid();
 }
+
+// --- Playhead logic ---
+document.getElementById("songPlay").onclick = async () => {
+    // Stop any currently playing audio
+    songSources.forEach(src => { try { src.stop(); } catch {} });
+    clearInterval(playheadInterval);
+
+    const ctx = initAudioContext();
+    songSources = [];
+
+    const playhead = document.getElementById("playhead");
+    const startTime = ctx.currentTime;
+    playhead.style.left = "24px";
+
+    // Move playhead visually
+    playheadInterval = setInterval(() => {
+        const elapsed = ctx.currentTime - startTime; // real seconds
+        const px = elapsed * PX_PER_SECOND;
+
+        if (elapsed > SONG_DURATION) {
+            clearInterval(playheadInterval);
+            return;
+        }
+
+        playhead.style.left = (px + 24) + "px";
+    }, 30);
+
+    // Play each clip
+    for (const clip of songClips) {
+        const buffer = await fetch(clip.url)
+            .then(r => r.arrayBuffer())
+            .then(b => ctx.decodeAudioData(b));
+
+        const clipDuration = buffer.duration / clip.speed;
+
+        // Full loops
+        for (let i = 0; i < clip.fullLoops; i++) {
+            const src = ctx.createBufferSource();
+            const gain = ctx.createGain();
+
+            src.buffer = buffer;
+            src.playbackRate.value = clip.speed;
+            src.detune.value = clip.pitch;
+            gain.gain.value = clip.amplitude;
+
+            src.connect(gain).connect(ctx.destination);
+            src.start(ctx.currentTime + clip.start + i * clipDuration);
+
+            songSources.push(src);
+        }
+
+        // Remainder
+        if (clip.remainder > 0) {
+            const src = ctx.createBufferSource();
+            const gain = ctx.createGain();
+
+            src.buffer = buffer;
+            src.playbackRate.value = clip.speed;
+            src.detune.value = clip.pitch;
+            gain.gain.value = clip.amplitude;
+
+            src.connect(gain).connect(ctx.destination);
+            src.start(ctx.currentTime + clip.start + clip.fullLoops * clipDuration, 0, clip.remainder);
+
+            songSources.push(src);
+        }
+    }
+};
 
 function resizeSongGrid() {
     const grid = document.getElementById("songGrid");
@@ -464,71 +541,6 @@ function enableDrag(el, clip) {
     };
 }
 
-document.getElementById("songPlay").onclick = async () => {
-    // Stop any currently playing audio
-    songSources.forEach(src => { try { src.stop(); } catch {} });
-    clearInterval(playheadInterval);
-
-    const ctx = initAudioContext();
-    songSources = [];
-
-    const playhead = document.getElementById("playhead");
-    const startTime = ctx.currentTime;
-    playhead.style.left = "24px";
-
-    // Move playhead visually
-    playheadInterval = setInterval(() => {
-        const elapsed = ctx.currentTime - startTime;
-        const px = elapsed * PX_PER_SECOND;
-
-        if (elapsed > SONG_DURATION) {
-            clearInterval(playheadInterval);
-            return;
-        }
-        playhead.style.left = (elapsed / SONG_DURATION) * songWrapper.clientWidth + "px";
-    }, 30);
-
-    // Play each clip
-    for (const clip of songClips) {
-        const buffer = await fetch(clip.url)
-            .then(r => r.arrayBuffer())
-            .then(b => ctx.decodeAudioData(b));
-
-        const clipDuration = buffer.duration / clip.speed;
-
-        // Full loops
-        for (let i = 0; i < clip.fullLoops; i++) {
-            const src = ctx.createBufferSource();
-            const gain = ctx.createGain();
-
-            src.buffer = buffer;
-            src.playbackRate.value = clip.speed;
-            src.detune.value = clip.pitch;
-            gain.gain.value = clip.amplitude;
-
-            src.connect(gain).connect(ctx.destination);
-            src.start(ctx.currentTime + clip.start + i * clipDuration);
-
-            songSources.push(src);
-        }
-
-        // Remainder
-        if (clip.remainder > 0) {
-            const src = ctx.createBufferSource();
-            const gain = ctx.createGain();
-
-            src.buffer = buffer;
-            src.playbackRate.value = clip.speed;
-            src.detune.value = clip.pitch;
-            gain.gain.value = clip.amplitude;
-
-            src.connect(gain).connect(ctx.destination);
-            src.start(ctx.currentTime + clip.start + clip.fullLoops * clipDuration, 0, clip.remainder);
-
-            songSources.push(src);
-        }
-    }
-};
 
 
 function selectClip(id) {
