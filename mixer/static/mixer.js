@@ -628,6 +628,27 @@ function bufferToWavBlob(buffer) {
   return new Blob([bufferArray], { type: 'audio/wav' });
 }
 
+document.getElementById("copyClip").onclick = () => {
+    if (!selectedClipId) return;
+
+    const original = songClips.find(c => c.id === selectedClipId);
+    if (!original) return;
+
+    // Shallow clone + new ID
+    const copy = {
+        ...original,
+        id: crypto.randomUUID(),
+        start: Math.min(
+            original.start + 0.5, // offset by 0.5s so it’s visible
+            SONG_DURATION - original.duration
+        )
+    };
+
+    songClips.push(copy);
+    selectedClipId = copy.id;
+    renderSong();
+};
+
 async function exportMixAsWav() {
     if (!songClips.length) {
         alert("No clips to export!");
