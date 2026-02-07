@@ -51,7 +51,8 @@ def generate_spectrogram(audio_data, sr):
         canvas.print_png(buffer)
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-
+        plt.close(fig)
+        del fig, canvas, ax
         return image_base64
 
     except Exception as e:
@@ -84,7 +85,8 @@ def generate_timeseries(audio_data, sr):
         canvas.print_png(buffer)
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-
+        plt.close(fig)
+        del fig, canvas, ax
         return image_base64
 
     except Exception as e:
@@ -179,6 +181,8 @@ def timeSeriesForSongSlider(audio_data, sr, category=None):
         out.seek(0)
 
         image_base64 = base64.b64encode(out.getvalue()).decode("utf-8")
+        plt.close(fig)
+        del fig, canvas, ax
         return image_base64
 
 
