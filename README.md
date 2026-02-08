@@ -1,6 +1,9 @@
 ## <img src="https://github.com/oceanhackweek/ohw25_proj_RiptideRemix/blob/main/staticfiles/Images/logo.png" alt="Logo" width="50" height="50">  RiptideRemix
 This repository hosts the source code for an OceanHackWeek2025 project to allow for audio classificaiton and audio-synthesis of acoustic soundsources. 
 
+https://riptide-remix-ac6c13c5a06d.herokuapp.com
+https://riptide-remix.onrender.com/
+
 ## Collaborators
 
 | Name                  | Role                |
