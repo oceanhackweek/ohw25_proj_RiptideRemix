@@ -15,7 +15,6 @@ import os
 
 from dotenv import load_dotenv
 from pathlib import Path
-import dj_database_url 
 
 
 logger = logging.getLogger(__name__)
@@ -85,17 +84,13 @@ WSGI_APPLICATION = 'riptideremix.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 
-# Only require SSL for non-SQLite databases
-if DATABASE_URL.startswith("sqlite"):
-    DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
-    }
+}
 
 
 # Password validation
