@@ -32,18 +32,34 @@ def generate_spectrogram(audio_data, sr):
         )
         # Convert to dB scale
         spectrogram_db = 20 * np.log10(np.sqrt(spectrogram) + 1e-10)
-         
-        # Plot
-        fig = Figure(figsize=(10, 4))
+
+        # Downsample spectrogram matrix if it's large to speed plotting
+        max_time_bins = 800
+        max_freq_bins = 400
+        freq_bins, time_bins = spectrogram_db.shape
+        time_step = max(1, time_bins // max_time_bins)
+        freq_step = max(1, freq_bins // max_freq_bins)
+
+        if time_step > 1 or freq_step > 1:
+            spectrogram_db = spectrogram_db[::freq_step, ::time_step]
+            times = times[::time_step]
+            frequencies = frequencies[::freq_step]
+
+        # Plot using imshow which is faster than pcolormesh for raster data
+        fig = Figure(figsize=(8, 3), dpi=100)
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
 
-        pcm = ax.pcolormesh(times, frequencies, spectrogram_db, shading='gouraud', cmap='cividis')
+        im = ax.imshow(spectrogram_db, aspect='auto', origin='lower',
+                       extent=[float(times[0]) if len(times)>0 else 0.0,
+                               float(times[-1]) if len(times)>0 else 0.0,
+                               float(frequencies[0]) if len(frequencies)>0 else 0.0,
+                               float(frequencies[-1]) if len(frequencies)>0 else 0.0],
+                       cmap='cividis')
 
         ax.set_ylabel('Frequency (Hz)')
         ax.set_xlabel('Time (s)')
         ax.set_title('Audio Spectrogram')
-        fig.colorbar(pcm, ax=ax, label='Sound Pressure Level (dB)')
 
         fig.tight_layout()
 
@@ -52,7 +68,7 @@ def generate_spectrogram(audio_data, sr):
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
         plt.close(fig)
-        del fig, canvas, ax
+        del fig, canvas, ax, im
         return image_base64
 
     except Exception as e:
@@ -66,15 +82,24 @@ def generate_timeseries(audio_data, sr):
     Applies speed, pitch, and amplitude adjustments safely.
     """
     try:
-        # Generate time axis
-        times = np.arange(len(audio_data)) / sr
+        # Downsample for plotting if the audio is very long
+        max_points = 2000
+        length = len(audio_data)
+        if length > max_points:
+            x_old = np.linspace(0, 1, length)
+            x_new = np.linspace(0, 1, max_points)
+            audio_plot = np.interp(x_new, x_old, audio_data)
+            times = np.linspace(0, length / sr, max_points)
+        else:
+            audio_plot = audio_data
+            times = np.arange(length) / sr
 
-        # Plot waveform
-        fig = Figure(figsize=(12, 4))
+        # Plot waveform compactly
+        fig = Figure(figsize=(8, 2), dpi=100)
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
 
-        ax.plot(times, audio_data, color='royalblue')
+        ax.plot(times, audio_plot, color='royalblue', linewidth=0.6)
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('Amplitude')
         ax.set_title('Audio Waveform')

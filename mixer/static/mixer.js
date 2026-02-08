@@ -183,10 +183,11 @@ async function loadSpectrogram(audioUrl) {
 
 
 // --- Update Previews ---
-function updatePreview() {
+async function updatePreview() {
     const url = soundSelect.value;
     if (!url) return;
-    loadTimeseries(url);
+    // Load timeseries first to show quick feedback, then generate spectrogram
+    await loadTimeseries(url);
     loadSpectrogram(url);
 }
 songWrapper.addEventListener("scroll", () => {
